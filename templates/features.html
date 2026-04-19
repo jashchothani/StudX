@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    .features-header { text-align: center; padding: 5rem 5%; }
+    .features-header h1 { font-size: 3.5rem; margin-bottom: 1rem; background: linear-gradient(45deg, #fff, var(--text-muted)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    
+    .feature-row { display: flex; align-items: center; justify-content: space-between; padding: 5rem 10%; gap: 4rem; }
+    .feature-row:nth-child(even) { flex-direction: row-reverse; background: rgba(255,255,255,0.02); }
+    
+    .feature-text { flex: 1; }
+    .feature-text h3 { font-size: 2.5rem; color: var(--accent); margin-bottom: 1rem; }
+    .feature-text p { font-size: 1.2rem; color: var(--text-muted); line-height: 1.6; }
+    
+    .feature-visual { flex: 1; background: linear-gradient(135deg, rgba(142,45,226,0.2), rgba(74,0,224,0.2)); border: 1px solid rgba(255,255,255,0.1); height: 300px; border-radius: 20px; display: flex; justify-content: center; align-items: center; font-size: 4rem; box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+</style>
+
+<div class="features-header reveal">
+    <h1>The Ultimate Educational Operating System</h1>
+    <p style="font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin: auto;">Replacing fragmented tools with one AI-powered ecosystem combining ERP, LMS, and Real-Time Communication.</p>
+</div>
+
+<div class="feature-row reveal">
+    <div class="feature-text">
+        <h3>🎥 AI Face Recognition</h3>
+        <p>Automate attendance instantly. Our AI scans the classroom, identifies students, and prepares a draft log. Teachers simply review and hit "Approve" before data syncs to the database.</p>
+    </div>
+    <div class="feature-visual">🤖📸</div>
+</div>
+
+<div class="feature-row reveal">
+    <div class="feature-text">
+        <h3>🧠 Auto-Timetable Generator</h3>
+        <p>Stop fighting with spreadsheets. Input your constraints (labs, teacher availability, max hours), and our algorithmic engine generates conflict-free schedules in seconds.</p>
+    </div>
+    <div class="feature-visual">📅⚙️</div>
+</div>
+
+<div class="feature-row reveal">
+    <div class="feature-text">
+        <h3>🔗 SAP Enterprise Integration</h3>
+        <p>Built for large institutions. All approved data, grading, and HR metrics automatically sync with your existing SAP infrastructure via secure APIs.</p>
+    </div>
+    <div class="feature-visual">🔄🏢</div>
+</div>
+{% endblock %}

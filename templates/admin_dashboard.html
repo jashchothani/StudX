@@ -1,0 +1,193 @@
+{% extends 'base2.html' %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/portal.css">
+<style>.prog-fill {
+    width: var(--p);
+}
+:root{--c1:#b91c1c;--c2:#dc2626;--c3:#fee2e2;--c4:#fecaca;--ctext:#7f1d1d;--sidebar:#1c0a0a;--accent:#f87171}</style>
+{% endblock %}
+{% block content %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-shield-halved"></i></div>
+      <div><div class="brand-name">StudX</div><div class="brand-role">Admin Panel</div></div>
+    </div>
+    <span class="nav-section">Control</span>
+    <div class="nav-item active" onclick="showTab('overview',this)"><i class="fa-solid fa-gauge-high"></i> System Overview</div>
+    <div class="nav-item" onclick="showTab('users',this)"><i class="fa-solid fa-users-gear"></i> User Management</div>
+    <div class="nav-item" onclick="showTab('attendance',this)"><i class="fa-solid fa-calendar-check"></i> Attendance Logs</div>
+    <div class="nav-item" onclick="showTab('emails',this)"><i class="fa-solid fa-envelope"></i> Email Reports</div>
+    <span class="nav-section">Monitor</span>
+    <div class="nav-item" onclick="showTab('meetings',this)"><i class="fa-solid fa-video"></i> Meetings</div>
+    <div class="nav-item" onclick="showTab('ai',this)"><i class="fa-solid fa-robot"></i> AI Analytics</div>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-av">{{ admin_name[0]|upper }}</div>
+        <div class="user-info"><div class="uname">{{ admin_name }}</div><div class="urole">Administrator</div></div>
+      </div>
+      <a href="/logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tab-pane active">
+      <div class="page-header"><h1>System Overview</h1><p>Bhagubhai Mafatlal Polytechnic — Admin Control Panel</p></div>
+      <div class="grid4 mb16">
+        <div class="stat-chip"><div class="si red"><i class="fa-solid fa-users"></i></div><div class="sv">1,240</div><div class="sl">Total Students</div></div>
+        <div class="stat-chip"><div class="si amber"><i class="fa-solid fa-chalkboard-user"></i></div><div class="sv">48</div><div class="sl">Faculty Members</div></div>
+        <div class="stat-chip"><div class="si red"><i class="fa-solid fa-user-clock"></i></div><div class="sv">{{ pending_users|length }}</div><div class="sl">Pending Approvals</div></div>
+        <div class="stat-chip"><div class="si green"><i class="fa-solid fa-server"></i></div><div class="sv">99.8%</div><div class="sl">Uptime</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-user-plus"></i> Pending Approvals</div>
+          {% for u in pending_users %}
+          <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #f3f4f6">
+            <div class="flex"><div class="av">{{ u.name[0]|upper }}</div>
+            <div><div style="font-size:.85rem;font-weight:600">{{ u.name }}</div>
+            <div style="font-size:.72rem;color:#9ca3af">{{ u.email }} · {{ u.role }}</div></div></div>
+            <div class="flex" style="gap:6px">
+              <a href="/admin/approve/{{ u.user_type }}/{{ u.id }}" class="btn btn-outline btn-sm" style="color:#10b981;border-color:#10b981"><i class="fa-solid fa-check"></i></a>
+              <a href="/admin/delete/{{ u.user_type }}/{{ u.id }}" class="btn btn-outline btn-sm" style="color:#ef4444;border-color:#ef4444"><i class="fa-solid fa-times"></i></a>
+            </div>
+          </div>
+          {% else %}
+          <p style="color:#9ca3af;text-align:center;padding:20px">No pending approvals 🎉</p>
+          {% endfor %}
+          {% if pending_users %}
+          <a href="/admin/approve_all" class="btn btn-primary btn-sm" style="margin-top:12px"><i class="fa-solid fa-check-double"></i> Approve All</a>
+          {% endif %}
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-chart-bar"></i> Campus Attendance Today</div>
+          {% for s,p in [('Sem 1',88),('Sem 2',79),('Sem 3',82),('Sem 4',83),('Sem 5',91),('Sem 6',75)] %}
+          <div style="margin-bottom:11px">
+            <div class="flex-between mb4"><span style="font-size:.82rem;font-weight:600">{{ s }}</span><span style="font-size:.75rem;color:#9ca3af">{{ p }}%</span></div>
+            <div class="prog-fill {{ 'good' if p>=85 else 'warn' if p>=75 else 'bad' }}" 
+     style="--p: {{ p }}%;">
+</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- USERS -->
+    <div id="tab-users" class="tab-pane hidden">
+      <div class="page-header"><h1>User Management</h1><p>Full control over all portal users</p></div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-users"></i> All Students</div>
+        <table class="tbl">
+          <tr><th>Name</th><th>Email</th><th>Semester</th><th>Division</th><th>Status</th><th>Actions</th></tr>
+          {% for s in all_students %}
+          <tr>
+            <td><div class="flex"><div class="av" style="width:28px;height:28px;font-size:.7rem">{{ s.name[0]|upper }}</div><strong>{{ s.name }}</strong></div></td>
+            <td style="color:#6b7280">{{ s.email }}</td>
+            <td>{{ s.semester or '—' }}</td>
+            <td>{{ s.division or '—' }}</td>
+            <td><span class="badge {{ 'badge-green' if s.status=='approved' else 'badge-amber' }}">{{ s.status }}</span></td>
+            <td>
+              {% if s.status=='pending' %}<a href="/admin/approve/student/{{ s.id }}" class="btn btn-outline btn-sm" style="color:#10b981;border-color:#10b981"><i class="fa-solid fa-check"></i> Approve</a>{% endif %}
+              <a href="/admin/delete/student/{{ s.id }}" class="btn btn-danger btn-sm" style="margin-left:4px"><i class="fa-solid fa-trash"></i></a>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="6" style="text-align:center;color:#9ca3af;padding:20px">No students yet.</td></tr>
+          {% endfor %}
+        </table>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE LOGS -->
+    <div id="tab-attendance" class="tab-pane hidden">
+      <div class="page-header"><h1>Attendance Logs</h1><p>All sessions — date-wise</p></div>
+      <div class="card"><div class="card-title"><i class="fa-solid fa-database"></i> Recent Sessions</div>
+        <p style="color:#9ca3af;font-size:.83rem;text-align:center;padding:24px">Connect to DB to view full attendance logs. Data is stored in <code>attendance_logs</code> table.</p>
+        <button class="btn btn-outline" onclick="fetch('/api/attendance_log').then(r=>r.json()).then(d=>renderLogTable(d))"><i class="fa-solid fa-refresh"></i> Load Logs</button>
+        <div id="log-table" style="margin-top:16px"></div>
+      </div>
+    </div>
+
+    <!-- EMAIL REPORTS -->
+    <div id="tab-emails" class="tab-pane hidden">
+      <div class="page-header"><h1>Email Reports</h1><p>Automated weekly attendance alerts — students below 75%</p></div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-envelope-open-text"></i> Weekly Attendance Alert System</div>
+        <p style="font-size:.83rem;color:#6b7280;margin-bottom:20px">Students below 75% attendance receive automated weekly emails. Configure SMTP in <code>app.py</code> and trigger reports here.</p>
+        <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:16px;margin-bottom:16px">
+          <div style="font-weight:700;color:#991b1b;margin-bottom:6px"><i class="fa-solid fa-triangle-exclamation"></i> Students Needing Alerts</div>
+          <p style="font-size:.83rem;color:#7f1d1d">Configure SMTP credentials in app.py → Run weekly via cron: <code>GET /api/send_weekly_reports</code></p>
+        </div>
+        <button class="btn btn-primary" onclick="triggerEmails(this)"><i class="fa-solid fa-envelope"></i> Send Weekly Reports Now</button>
+        <div style="margin-top:16px;padding:14px;background:#f9fafb;border-radius:10px;font-size:.82rem;color:#6b7280">
+          <strong>Email template includes:</strong> Student name, subject-wise attendance %, minimum lectures needed to reach 75%, parent CC option.
+        </div>
+      </div>
+    </div>
+
+    <!-- MEETINGS -->
+    <div id="tab-meetings" class="tab-pane hidden">
+      <div class="page-header"><h1>All Meetings</h1><p>System-wide meeting management</p></div>
+      <div class="card"><div class="card-title"><i class="fa-solid fa-video"></i> Scheduled Meetings</div>
+        <p style="color:#9ca3af;font-size:.83rem;text-align:center;padding:24px">Meeting data stored in <code>meetings</code> table. <a href="#" style="color:var(--c1)">Load via API →</a></p>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div id="tab-ai" class="tab-pane hidden">
+      <div class="page-header"><h1>AI Analytics</h1><p>Campus-wide insights powered by AI</p></div>
+      <div class="ai-chat-wrap">
+        <div class="ai-header">
+          <div class="ai-av"><i class="fa-solid fa-robot"></i></div>
+          <div><div style="font-weight:700">StudX Admin AI</div><div style="font-size:.72rem;color:#10b981">● Analytics Mode</div></div>
+        </div>
+        <div id="ai-msgs" class="ai-msgs">
+          <div class="ai-bubble">Hello Admin! I can analyse campus data, generate attendance reports, identify at-risk students, draft policy memos, and more. What would you like to explore?</div>
+          <div class="ai-quick-btns">
+            {% for q in ['Students at risk of debarment','Attendance trend last month','Faculty load analysis','Generate weekly report'] %}
+            <button class="btn btn-outline btn-sm" onclick="aiSend('{{q}}')">{{q}}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="ai-input-wrap"><input id="ai-inp" class="form-control" placeholder="Query the AI..." onkeydown="if(event.key==='Enter')aiSend()">
+        <button class="btn btn-primary" onclick="aiSend()"><i class="fa-solid fa-paper-plane"></i></button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/js/portal.js"></script>
+<script>
+function triggerEmails(btn){
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i> Sending...';
+  fetch('/api/send_weekly_reports').then(r=>r.json()).then(d=>{
+    btn.innerHTML=`<i class="fa-solid fa-check"></i> Sent ${d.emails_sent||0} reports`;
+    btn.style.background='#10b981';
+  }).catch(()=>{btn.innerHTML='Configure SMTP to send';});
+}
+function renderLogTable(d){
+  const el=document.getElementById('log-table');
+  if(!d.students||!d.students.length){el.innerHTML='<p style="color:#9ca3af;text-align:center">No logs yet.</p>';return;}
+  el.innerHTML=`<table class="tbl"><tr><th>Student</th><th>Method</th><th>Time</th></tr>
+  ${d.students.map(s=>`<tr><td><strong>${s.student_name}</strong></td><td><span class="badge badge-green">${s.method}</span></td><td style="color:#9ca3af">${s.timestamp}</td></tr>`).join('')}</table>`;
+}
+async function aiSend(preset){
+  const inp=document.getElementById('ai-inp');
+  const text=preset||inp.value.trim();if(!text)return;inp.value='';
+  const msgs=document.getElementById('ai-msgs');
+  const ud=document.createElement('div');ud.style.cssText='display:flex;justify-content:flex-end;margin-bottom:6px';
+  ud.innerHTML=`<div class="msg-bubble mine" style="max-width:70%">${text}</div>`;msgs.appendChild(ud);
+  const td=document.createElement('div');td.className='ai-bubble';
+  td.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';msgs.appendChild(td);
+  msgs.scrollTop=msgs.scrollHeight;
+  const resp={'Students at risk of debarment':'Based on current attendance data, 23 students are below 75%. Top at-risk: Dev Sharma (64%), Rohan Patel (71%), Kiran Desai (68%). Recommend sending alerts immediately and scheduling counselling sessions.',
+  'Attendance trend last month':'March 2025 campus attendance averaged 79.4% — a 3.2% improvement over February. Sem-5 showed the highest average at 91%. Sem-3 remains the lowest at 68% and needs intervention.'};
+  setTimeout(()=>{
+    td.textContent=resp[text]||'Full AI analytics would process your attendance DB, assignment data, and generate insights. Connect to Anthropic API for live analysis.';
+    msgs.scrollTop=msgs.scrollHeight;
+  },1500);
+}
+</script>
+{% endblock %}

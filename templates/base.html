@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}StudX | Modern Institutional OS{% endblock %}</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* --- NAVBAR STYLES --- */
+.studx-navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(124, 58, 237, 0.1);
+    z-index: 1000;
+    padding: 15px 0;
+    transition: 0.3s ease;
+}
+
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-brand {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #1e1b4b;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-menu {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #64748b;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.3s;
+}
+
+.nav-link:hover {
+    color: #7c3aed;
+}
+
+.login-link {
+    color: #1e1b4b;
+    font-weight: 700;
+}
+
+.nav-cta-btn {
+    background: linear-gradient(135deg, #1e1b4b, #7c3aed);
+    color: white;
+    text-decoration: none;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.nav-cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(124, 58, 237, 0.2);
+}
+
+.mobile-toggle {
+    display: none;
+    font-size: 1.5rem;
+    color: #1e1b4b;
+    cursor: pointer;
+}
+
+/* --- MOBILE RESPONSIVE NAVBAR --- */
+@media (max-width: 768px) {
+    .mobile-toggle {
+        display: block; /* Show hamburger on mobile */
+    }
+
+    .nav-menu {
+        position: fixed;
+        top: 70px; /* Right below the navbar */
+        left: -100%; /* Hide off-screen by default */
+        width: 100%;
+        height: 100vh;
+        background: #ffffff;
+        flex-direction: column;
+        justify-content: flex-start;
+        padding-top: 40px;
+        gap: 25px;
+        transition: 0.4s ease-in-out;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    /* This class will be added by JavaScript to slide the menu in */
+    .nav-menu.active {
+        left: 0; 
+    }
+
+    .nav-link {
+        font-size: 1.2rem;
+    }
+}
+    </style>
+</head>
+<body>
+    
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                <span class="logo-text">StudX</span>
+            </a>
+            <div class="nav-links">
+                <a href="/#vision" class="nav-item">Vision</a>
+                <a href="/#features" class="nav-item">Features</a>
+                <a href="/#benefits" class="nav-item">Benefits</a>
+                <a href="/#sap" class="nav-item">Integrations</a>
+                <div class="nav-divider"></div>
+                <a href="/login" class="login-link">Log in</a>
+                <a href="/register" class="cta-btn sm-btn">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock %}
+
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo-section">
+                <a href="/" class="logo">
+                    <i class="fa-solid fa-graduation-cap logo-icon"></i>
+                    <span class="logo-text">StudX</span>
+                </a>
+                <p>The AI-Powered OS for Modern Institutions</p>
+                <p class="copyright">© 2024 StudX, Inc.</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-column">
+                    <h4>Platform</h4>
+                    <a href="/#features">Core Features</a>
+                    <a href="/#ai">AI Timetable</a>
+                    <a href="/#chat">Chat System</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <a href="#">About Us</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="footer-column">
+                    <h4>Legal</h4>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script>
+        // Initialize animations on scroll
+        AOS.init({
+            duration: 800, 
+            easing: 'ease-out-cubic',
+            once: true, 
+        });
+
+        // Sticky Navbar Effect on scroll
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('sticky');
+            } else {
+                navbar.classList.remove('sticky');
+            }
+        });
+    </script>
+    <script>
+    // Grab the toggle button and the menu
+    const mobileToggle = document.getElementById('mobile-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    const toggleIcon = mobileToggle.querySelector('i');
+
+    // Add click event to toggle the menu
+    mobileToggle.addEventListener('click', () => {
+        navMenu.classList.toggle('active');
+        
+        // Optional: Change the hamburger icon to an "X" when open
+        if (navMenu.classList.contains('active')) {
+            toggleIcon.classList.remove('fa-bars');
+            toggleIcon.classList.add('fa-xmark');
+        } else {
+            toggleIcon.classList.remove('fa-xmark');
+            toggleIcon.classList.add('fa-bars');
+        }
+    });
+
+    // Close menu automatically when a link is clicked
+    const navLinks = document.querySelectorAll('.nav-link, .nav-cta-btn');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            navMenu.classList.remove('active');
+            toggleIcon.classList.remove('fa-xmark');
+            toggleIcon.classList.add('fa-bars');
+        });
+    });
+</script>
+</body>
+</html>

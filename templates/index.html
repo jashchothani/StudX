@@ -1,0 +1,380 @@
+{% extends 'base.html' %}
+
+{% block title %}StudX | The AI-Powered OS for Modern Institutions{% endblock %}
+
+{% block content %}
+<style>
+    /* --- ADVANCED LANDING PAGE STYLES --- */
+    :root {
+        --purple-glow: rgba(124, 58, 237, 0.4);
+        --pink-glow: rgba(244, 114, 182, 0.4);
+    }
+
+    body { scroll-behavior: smooth; }
+
+    /* Hero Section */
+    .hero-section { position: relative; padding: 160px 0 100px; background: #ffffff; overflow: hidden; }
+    .hero-title { font-size: 4.5rem; font-weight: 800; line-height: 1.1; letter-spacing: -2px; margin-bottom: 20px; background: linear-gradient(to right, #1e1b4b, #7c3aed, #db2777, #1e1b4b); background-size: 300% auto; color: transparent; -webkit-background-clip: text; background-clip: text; animation: shine 8s linear infinite; }
+    @keyframes shine { to { background-position: 300% center; } }
+
+    /* Abstract Floating UI Mockup */
+    .floating-ui-wrapper { position: relative; width: 100%; height: 500px; perspective: 1000px; }
+    .ui-card { position: absolute; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.5); border-radius: 24px; box-shadow: 0 30px 60px rgba(124, 58, 237, 0.15); padding: 20px; transition: transform 0.3s; }
+    .ui-main { width: 320px; height: 400px; top: 10%; left: 50%; transform: translateX(-50%) rotateY(-15deg) rotateX(10deg); animation: floatMain 6s ease-in-out infinite; z-index: 2; }
+    .ui-side-1 { width: 250px; height: 180px; top: 40%; left: 0; transform: rotateY(15deg) rotateZ(-5deg); animation: floatSide 7s ease-in-out infinite 1s; z-index: 3; }
+    .ui-side-2 { width: 280px; height: 200px; top: 20%; right: -20px; transform: rotateY(-20deg) rotateZ(5deg); animation: floatSide 8s ease-in-out infinite 0.5s; z-index: 1; }
+    @keyframes floatMain { 0%, 100% { transform: translateX(-50%) rotateY(-15deg) rotateX(10deg) translateY(0); } 50% { transform: translateX(-50%) rotateY(-15deg) rotateX(10deg) translateY(-20px); } }
+    @keyframes floatSide { 0%, 100% { transform: translateY(0) rotateZ(-5deg); } 50% { transform: translateY(-15px) rotateZ(-2deg); } }
+    .skeleton-line { height: 12px; border-radius: 6px; background: #f1f5f9; margin-bottom: 12px; }
+    .skeleton-circle { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #7c3aed, #f472b6); margin-bottom: 15px; }
+
+    /* Vision Section */
+    .vision-section { padding: 120px 0; background: #ffffff; text-align: center; }
+    .equation-container { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; margin-top: 60px; }
+    .eq-item { background: #f8fafc; padding: 40px 20px; border-radius: 30px; width: 200px; box-shadow: 0 15px 35px rgba(0,0,0,0.03); transition: 0.4s; border: 2px solid transparent; }
+    .eq-item:hover { transform: translateY(-10px); border-color: #ddd6fe; box-shadow: 0 20px 40px rgba(124, 58, 237, 0.1); }
+    .eq-item i { font-size: 3rem; color: #7c3aed; margin-bottom: 15px; }
+    .eq-item h3 { font-size: 1.5rem; font-weight: 800; color: #1e1b4b; margin-bottom: 5px; }
+    .eq-plus { font-size: 2.5rem; color: #cbd5e1; font-weight: 300; }
+    .eq-result { background: linear-gradient(135deg, #1e1b4b, #7c3aed); color: white; transform: scale(1.1); box-shadow: 0 20px 40px var(--purple-glow); }
+    .eq-result i, .eq-result h3, .eq-result p { color: white; }
+    .eq-result:hover { transform: scale(1.15) translateY(-10px); border-color: transparent; }
+
+    /* Infinite Scrolling Marquee */
+    .marquee-container { width: 100%; overflow: hidden; background: #faf5ff; padding: 50px 0; border-top: 1px solid #f1f5f9; border-bottom: 1px solid #f1f5f9; }
+    .marquee-track { display: flex; width: max-content; animation: scrollMarquee 20s linear infinite; }
+    .marquee-item { font-size: 2.5rem; font-weight: 800; color: transparent; -webkit-text-stroke: 2px #cbd5e1; margin: 0 40px; text-transform: uppercase; transition: 0.3s; }
+    .marquee-item:hover { color: #7c3aed; -webkit-text-stroke: 0px; text-shadow: 0 10px 20px var(--purple-glow); cursor: default;}
+    @keyframes scrollMarquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* Modern Bento Grid Features */
+    .features-section { padding: 120px 0; background: #faf5ff; }
+    .bento-grid { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 250px); gap: 25px; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+    .bento-card { background: #ffffff; border-radius: 30px; padding: 35px; position: relative; overflow: hidden; border: 2px solid transparent; box-shadow: 0 15px 35px rgba(0,0,0,0.03); transition: 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); display: flex; flex-direction: column; }
+    .bento-card:hover { transform: translateY(-10px); border-color: #ddd6fe; box-shadow: 0 30px 60px rgba(124, 58, 237, 0.1); }
+    .bento-large { grid-column: span 2; background: linear-gradient(135deg, #1e1b4b 0%, #4c1d95 100%); color: white; }
+    .bento-large p { color: #a78bfa; }
+    .bento-tall { grid-row: span 2; }
+    .bento-icon { font-size: 2.5rem; margin-bottom: auto; }
+    .bento-large .bento-icon { color: #f472b6; }
+    .bento-card:not(.bento-large) .bento-icon { color: #7c3aed; }
+    .bento-title { font-size: 1.4rem; font-weight: 800; margin-bottom: 10px; letter-spacing: -0.5px; }
+    .bento-desc { font-size: 0.95rem; line-height: 1.5; color: #64748b; margin: 0; }
+
+    /* Integration / SAP Section */
+    .integration-section { padding: 120px 0; background: #ffffff; }
+    .integration-wrapper { background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-radius: 40px; padding: 80px 60px; color: white; display: flex; align-items: center; justify-content: space-between; gap: 40px; position: relative; overflow: hidden; box-shadow: 0 30px 60px rgba(15, 23, 42, 0.3); max-width: 1200px; margin: 0 auto; }
+    .integration-wrapper::before { content: ''; position: absolute; width: 400px; height: 400px; background: #38bdf8; filter: blur(150px); border-radius: 50%; top: -100px; right: -100px; opacity: 0.3; }
+    .integration-content { max-width: 500px; z-index: 2; }
+    .integration-content h2 { font-size: 3rem; font-weight: 800; margin-bottom: 20px; line-height: 1.1; }
+    .integration-visual { z-index: 2; display: flex; align-items: center; gap: 20px; }
+    .server-box { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.2); text-align: center; }
+    .server-box i { font-size: 4rem; color: #38bdf8; margin-bottom: 10px; }
+    .sync-arrows i { font-size: 3rem; color: #a78bfa; animation: pulseSync 2s infinite; }
+    @keyframes pulseSync { 0%, 100% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.2); opacity: 1; } }
+
+    /* Benefits / Roles Section */
+    .benefits-section { padding: 120px 0; background: #f5f3ff; }
+    .roles-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 60px auto 0; padding: 0 20px; }
+    .role-card { background: #ffffff; padding: 40px 30px; border-radius: 30px; border-top: 6px solid #7c3aed; box-shadow: 0 20px 40px rgba(124, 58, 237, 0.05); transition: 0.3s; }
+    .role-card:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(124, 58, 237, 0.15); }
+    .role-card i { font-size: 2.5rem; color: #f472b6; margin-bottom: 20px; }
+    .role-card h3 { font-size: 1.5rem; font-weight: 800; color: #1e1b4b; margin-bottom: 15px; }
+    .role-card ul { list-style: none; padding: 0; margin: 0; color: #64748b; font-size: 0.95rem; }
+    .role-card ul li { margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+    .role-card ul li i { font-size: 0.8rem; color: #10b981; margin: 0; }
+
+    /* General Section Headers */
+    .section-header { text-align: center; max-width: 800px; margin: 0 auto 50px; padding: 0 20px; }
+    .section-title { font-size: 3.5rem; font-weight: 800; color: #1e1b4b; margin-bottom: 15px; letter-spacing: -1px; }
+    .section-subtitle { font-size: 1.2rem; color: #64748b; }
+
+    /* --- MOBILE RESPONSIVE STYLES --- */
+    @media (max-width: 768px) {
+        /* Hero Scaling */
+        .hero-section { padding: 100px 20px 60px; text-align: center; }
+        .hero-title { font-size: 2.5rem; }
+        .hero-description { font-size: 1rem !important; }
+        .hero-btns { display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .hero-btns .lg-btn { margin-left: 0 !important; width: 100%; max-width: 300px; text-align: center; }
+        
+        /* Floating UI Shrink */
+        .floating-ui-wrapper { height: 350px; transform: scale(0.7); transform-origin: top center; margin-top: 40px; }
+        
+        /* Typography Scaling */
+        .section-title { font-size: 2.2rem; }
+        .section-subtitle { font-size: 1rem; }
+        
+        /* Vision / Equations */
+        .vision-section { padding: 60px 0; }
+        .equation-container { gap: 15px; flex-direction: column; }
+        .eq-item { width: 100%; max-width: 250px; }
+        .eq-plus { transform: rotate(90deg); margin: 10px 0; }
+        .eq-result { transform: scale(1); }
+        .eq-result:hover { transform: translateY(-5px); }
+
+        /* Marquee */
+        .marquee-item { font-size: 1.5rem; margin: 0 20px; -webkit-text-stroke: 1px #cbd5e1; }
+
+        /* Bento Grid Unwrapping */
+        .features-section { padding: 80px 0; }
+        .bento-grid { 
+            grid-template-columns: 1fr; /* Single column */
+            grid-template-rows: auto; 
+        }
+        .bento-card { min-height: 250px; }
+        .bento-large, .bento-tall { 
+            grid-column: span 1; 
+            grid-row: span 1; 
+        }
+
+        /* Integration Section */
+        .integration-section { padding: 60px 20px; }
+        .integration-wrapper { 
+            flex-direction: column; 
+            padding: 40px 20px; 
+            text-align: center; 
+        }
+        .integration-content h2 { font-size: 2.2rem; }
+        .integration-visual { 
+            flex-direction: column; 
+            width: 100%; 
+        }
+        .sync-arrows i { transform: rotate(90deg); }
+        @keyframes pulseSync { 
+            0%, 100% { transform: rotate(90deg) scale(1); opacity: 0.5; } 
+            50% { transform: rotate(90deg) scale(1.2); opacity: 1; } 
+        }
+
+        /* Benefits */
+        .benefits-section { padding: 80px 0; }
+        .roles-grid { margin-top: 40px; }
+
+        /* Final CTA */
+        .final-cta-section { padding: 60px 20px !important; }
+        .final-cta-content { padding: 50px 20px !important; }
+        .final-cta-content h3 { font-size: 2.2rem !important; }
+    }
+</style>
+
+    <section class="hero-section">
+        <div class="hero-container container">
+            <div class="hero-content" data-aos="fade-up">
+                <div class="hero-badge" style="background: #fdf4ff; color: #db2777; border: 1px solid #fbcfe8; display: inline-block; padding: 8px 16px; border-radius: 20px; font-weight: 800; font-size: 0.85rem; margin-bottom: 20px;">
+                    <i class="fa-solid fa-bolt"></i> NEXT-GEN ERP
+                </div>
+                <h1 class="hero-title">The AI Software for<br>Modern Education.</h1>
+                <p class="hero-description" style="color: #475569; font-size: 1.25rem;">
+                    Unify your LMS, ERP, and internal communications into one seamless, intelligent ecosystem powered by advanced Face Recognition and AI Scheduling.
+                </p>
+                <div class="hero-btns" style="margin-top: 30px;">
+                    <a href="/register" class="cta-btn lg-btn" style="border-radius: 30px; font-size: 1.1rem; padding: 18px 35px; display: inline-block;">Start Free Trial <i class="fa-solid fa-arrow-right"></i></a>
+                    <a href="#features" class="secondary-btn lg-btn" style="border-radius: 30px; border: none; background: #f1f5f9; font-weight: 700; padding: 18px 35px; display: inline-block; margin-left: 15px; color: #1e1b4b; text-decoration: none;">Explore Features</a>
+                </div>
+            </div>
+            
+            <div class="hero-illustration" data-aos="zoom-in" data-aos-delay="200">
+                <div class="floating-ui-wrapper">
+                    <div class="ui-card ui-main">
+                        <div class="skeleton-circle"></div>
+                        <div class="skeleton-line" style="width: 60%; background: #e2e8f0;"></div>
+                        <div class="skeleton-line" style="width: 40%; background: #e2e8f0; margin-bottom: 40px;"></div>
+                        <div class="skeleton-line" style="height: 60px; background: #f5f3ff; border: 1px solid #ddd6fe;"></div>
+                        <div class="skeleton-line" style="height: 60px; background: #f5f3ff; border: 1px solid #ddd6fe;"></div>
+                        <div class="skeleton-line" style="height: 60px; background: #f5f3ff; border: 1px solid #ddd6fe;"></div>
+                    </div>
+                    <div class="ui-card ui-side-1">
+                        <i class="fa-solid fa-expand" style="font-size: 2rem; color: #38bdf8; margin-bottom: 15px;"></i>
+                        <div class="skeleton-line" style="width: 80%; background: #1e1b4b;"></div>
+                        <div class="skeleton-line" style="width: 50%;"></div>
+                        <div style="margin-top: 20px; font-weight: 800; color: #10b981; font-size: 1.5rem;">98.4%</div>
+                        <div style="font-size: 0.8rem; color: #64748b; font-weight: 700;">AI Match Rate</div>
+                    </div>
+                    <div class="ui-card ui-side-2">
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                            <div class="skeleton-circle" style="width: 30px; height: 30px; margin: 0; background: #f472b6;"></div>
+                            <div class="skeleton-line" style="width: 50%; margin: 0;"></div>
+                        </div>
+                        <div class="skeleton-line" style="width: 90%; height: 40px; border-radius: 12px; background: #f1f5f9;"></div>
+                        <div class="skeleton-line" style="width: 70%; height: 40px; border-radius: 12px; background: #7c3aed; margin-left: auto;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="vision-section" id="vision">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">One Unified Core System</h2>
+                <p class="section-subtitle">We’ve refined institutional management by mixing essential systems with advanced technology.</p>
+            </div>
+            
+            <div class="equation-container" data-aos="fade-up" data-aos-delay="200">
+                <div class="eq-item">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <h3>ERP</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin:0;">Operations</p>
+                </div>
+                <div class="eq-plus">+</div>
+                <div class="eq-item">
+                    <i class="fa-solid fa-book-open"></i>
+                    <h3>LMS</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin:0;">Academics</p>
+                </div>
+                <div class="eq-plus">+</div>
+                <div class="eq-item">
+                    <i class="fa-solid fa-brain"></i>
+                    <h3>AI</h3>
+                    <p style="color: #64748b; font-size: 0.9rem; margin:0;">Optimization</p>
+                </div>
+                <div class="eq-plus">=</div>
+                <div class="eq-item eq-result">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <h3>StudX</h3>
+                    <p style="font-size: 0.9rem; margin:0;">Total Harmony</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="marquee-container">
+        <div class="marquee-track">
+            <div class="marquee-item">Students</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Faculty</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Administrators</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Parents</div><div class="marquee-item">•</div>
+            <div class="marquee-item">HODs</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Students</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Faculty</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Administrators</div><div class="marquee-item">•</div>
+            <div class="marquee-item">Parents</div><div class="marquee-item">•</div>
+            <div class="marquee-item">HODs</div><div class="marquee-item">•</div>
+        </div>
+    </div>
+
+    <section class="features-section" id="features">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Everything you need.</h2>
+                <p class="section-subtitle">Stop juggling six different platforms. StudX brings it all together.</p>
+            </div>
+            
+            <div class="bento-grid">
+                
+                <div class="bento-card bento-large" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="bento-icon"><i class="fa-solid fa-camera-viewfinder"></i></div>
+                    <h3 class="bento-title">AI Face Attendance</h3>
+                    <p class="bento-desc">Zero-touch biometric tracking. The AI model instantly matches faces against the student database with a 99% accuracy rate, completely eliminating proxy attendance.</p>
+                    <div style="position: absolute; bottom: -50px; right: -50px; width: 200px; height: 200px; background: #f472b6; filter: blur(80px); border-radius: 50%;"></div>
+                </div>
+                
+                <div class="bento-card bento-tall" id="chat" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="bento-icon"><i class="fa-solid fa-comments"></i></div>
+                    <h3 class="bento-title">Encrypted Chat</h3>
+                    <p class="bento-desc">Stop using external apps for official business. Built-in secure messaging between HODs, student groups, and parent-teacher channels.</p>
+                    <div style="margin-top: 20px; background: #f8fafc; padding: 15px; border-radius: 15px;">
+                        <div class="skeleton-line" style="width: 100%; height: 30px; border-radius: 10px; background: #e2e8f0;"></div>
+                        <div class="skeleton-line" style="width: 80%; height: 30px; border-radius: 10px; background: #d8b4fe; margin-left: auto;"></div>
+                    </div>
+                </div>
+
+                <div class="bento-card" id="ai" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="bento-icon"><i class="fa-solid fa-calendar-day"></i></div>
+                    <h3 class="bento-title">AI Timetable</h3>
+                    <p class="bento-desc">Algorithm automatically resolves room and faculty clashes in seconds.</p>
+                </div>
+
+                <div class="bento-card" data-aos="zoom-in" data-aos-delay="400">
+                    <div class="bento-icon"><i class="fa-solid fa-check-double"></i></div>
+                    <h3 class="bento-title">Teacher Approvals</h3>
+                    <p class="bento-desc">Faculty reviews and signs off on AI attendance before it is logged.</p>
+                </div>
+
+                <div class="bento-card" data-aos="zoom-in" data-aos-delay="500">
+                    <div class="bento-icon" style="color: #10b981;"><i class="fa-solid fa-file-export"></i></div>
+                    <h3 class="bento-title">Smart Assignments</h3>
+                    <p class="bento-desc">Paperless submission, tracking, grading, and feedback loops.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section class="integration-section" id="sap">
+        <div class="container">
+            <div class="integration-wrapper" data-aos="fade-up">
+                <div class="integration-content">
+                    <h2>Enterprise SAP Sync</h2>
+                    <p style="font-size: 1.15rem; color: #cbd5e1; margin-bottom: 30px; line-height: 1.6;">
+                        StudX isn't an isolated island. It bridges directly with your institution's existing SAP ERP backend, ensuring financial, administrative, and academic data flow securely without manual entry.
+                    </p>
+                    <a href="/register" class="cta-btn sm-btn" style="background: white; color: #1e1b4b; text-decoration: none; padding: 12px 24px; border-radius: 20px; font-weight: 800;">View Documentation</a>
+                </div>
+                
+                <div class="integration-visual">
+                    <div class="server-box">
+                        <i class="fa-solid fa-database"></i>
+                        <h4 style="margin:0; font-weight: 800;">StudX DB</h4>
+                    </div>
+                    <div class="sync-arrows">
+                        <i class="fa-solid fa-right-left"></i>
+                    </div>
+                    <div class="server-box" style="border-color: #38bdf8;">
+                        <i class="fa-solid fa-server" style="color: #f472b6;"></i>
+                        <h4 style="margin:0; font-weight: 800;">SAP ERP</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="benefits-section" id="benefits">
+        <div class="container">
+            <div class="section-header" data-aos="fade-up">
+                <h2 class="section-title">Built for Everyone</h2>
+                <p class="section-subtitle">Tailored dashboards ensure that every stakeholder gets exactly what they need, exactly when they need it.</p>
+            </div>
+            
+            <div class="roles-grid">
+                <div class="role-card" data-aos="fade-up" data-aos-delay="100">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <h3>Administrators</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Manage user approvals</li>
+                        <li><i class="fa-solid fa-check"></i> Monitor live AI attendance</li>
+                        <li><i class="fa-solid fa-check"></i> Control SAP Data Sync</li>
+                    </ul>
+                </div>
+                <div class="role-card" data-aos="fade-up" data-aos-delay="200" style="border-top-color: #38bdf8;">
+                    <i class="fa-solid fa-chalkboard-user" style="color: #38bdf8;"></i>
+                    <h3>Faculty & HODs</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> Approve class attendance</li>
+                        <li><i class="fa-solid fa-check"></i> Grade digital assignments</li>
+                        <li><i class="fa-solid fa-check"></i> Message student groups</li>
+                    </ul>
+                </div>
+                <div class="role-card" data-aos="fade-up" data-aos-delay="300" style="border-top-color: #f472b6;">
+                    <i class="fa-solid fa-user-graduate" style="color: #f472b6;"></i>
+                    <h3>Students & Parents</h3>
+                    <ul>
+                        <li><i class="fa-solid fa-check"></i> View dynamic timetables</li>
+                        <li><i class="fa-solid fa-check"></i> Track attendance scores</li>
+                        <li><i class="fa-solid fa-check"></i> Submit homework online</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="final-cta-section container" data-aos="fade-up" style="padding: 120px 0;">
+        <div class="final-cta-content" style="background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); overflow: hidden; padding: 80px 40px; border-radius: 40px; text-align: center; position: relative;">
+            <div style="position: absolute; top: -100px; left: -100px; width: 300px; height: 300px; background: #7c3aed; filter: blur(100px); border-radius: 50%;"></div>
+            <h3 style="font-size: 3.5rem; font-weight: 800; letter-spacing: -1px; color: white; margin-bottom: 20px; position: relative; z-index: 2;">Launch your campus.</h3>
+            <p style="font-size: 1.2rem; color: #94a3b8; margin-bottom: 40px; position: relative; z-index: 2;">Join the institutions upgrading their workflow today.</p>
+            <a href="/register" class="cta-btn lg-btn" style="background: #ffffff; color: #1e1b4b; border-radius: 30px; font-weight: 800; padding: 18px 40px; text-decoration: none; position: relative; z-index: 2;">Create your account <i class="fa-solid fa-rocket" style="color: #7c3aed; margin-left: 10px;"></i></a>
+        </div>
+    </section>
+
+{% endblock %}

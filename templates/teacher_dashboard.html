@@ -1,0 +1,427 @@
+{% extends 'base2.html' %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/portal.css">
+<style>:root{--c1:#0e7490;--c2:#0891b2;--c3:#e0f2fe;--c4:#bae6fd;--ctext:#0c4a6e;--sidebar:#0c2340;--accent:#38bdf8}</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+{% endblock %}
+{% block content %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-chalkboard-user"></i></div>
+      <div><div class="brand-name">StudX</div><div class="brand-role">Teacher Portal</div></div>
+    </div>
+    <span class="nav-section">Classroom</span>
+    <div class="nav-item active" onclick="showTab('overview',this)"><i class="fa-solid fa-chart-line"></i> Dashboard</div>
+    <div class="nav-item" onclick="showTab('attendance',this)"><i class="fa-solid fa-camera-viewfinder"></i> Take Attendance <span class="nav-badge live">LIVE</span></div>
+    <div class="nav-item" onclick="showTab('assignments',this)"><i class="fa-solid fa-file-pen"></i> Assignments</div>
+    <div class="nav-item" onclick="showTab('timetable',this)"><i class="fa-solid fa-calendar-week"></i> Timetable</div>
+    <span class="nav-section">Engage</span>
+    <div class="nav-item" onclick="showTab('chat',this)"><i class="fa-solid fa-comment-dots"></i> Messages</div>
+    <div class="nav-item" onclick="showTab('meetings',this)"><i class="fa-solid fa-video"></i> Meetings</div>
+    <div class="nav-item" onclick="showTab('ai',this)"><i class="fa-solid fa-robot"></i> AI Assistant</div>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-av">{{ teacher_name[0]|upper }}</div>
+        <div class="user-info"><div class="uname">{{ teacher_name }}</div><div class="urole">Faculty</div></div>
+      </div>
+      <a href="/logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tab-pane active">
+      <div class="page-header"><h1>Teacher Dashboard</h1><p id="date-now"></p></div>
+      <div class="grid4 mb16">
+        <div class="stat-chip"><div class="si cyan"><i class="fa-solid fa-users"></i></div><div class="sv">60</div><div class="sl">Students Enrolled</div></div>
+        <div class="stat-chip"><div class="si green"><i class="fa-solid fa-circle-check"></i></div><div class="sv" id="ov-present">—</div><div class="sl">Present Today</div></div>
+        <div class="stat-chip"><div class="si amber"><i class="fa-solid fa-file-pen"></i></div><div class="sv">{{ assignments|length }}</div><div class="sl">Active Assignments</div></div>
+        <div class="stat-chip"><div class="si red"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="sv" id="ov-low">—</div><div class="sl">Low Attendance</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="fa-solid fa-clock"></i> Today's Attendance Log</div>
+          <table class="tbl"><tr><th>Student</th><th>Method</th><th>Time</th></tr>
+          {% for log in today_logs %}
+          <tr><td><strong>{{ log.student_name }}</strong></td>
+          <td><span class="badge badge-green">{{ log.method }}</span></td>
+          <td style="color:#9ca3af">{{ log.timestamp[:16] }}</td></tr>
+          {% else %}
+          <tr><td colspan="3" style="text-align:center;color:#9ca3af;padding:20px">No attendance yet today</td></tr>
+          {% endfor %}
+          </table>
+        </div>
+        <div class="card"><div class="card-title"><i class="fa-solid fa-chart-pie"></i> Class Summary</div>
+          {% for s,p in [('IOT Sem-4A',83),('IOT Sem-4B',77),('PSP Sem-3A',68),('NWA Sem-5B',91)] %}
+          <div style="margin-bottom:12px">
+            <div class="flex-between mb4"><span style="font-size:.82rem;font-weight:600">{{s}}</span><span style="font-size:.75rem;color:#9ca3af">{{p}}%</span></div>
+            <div class="prog-bar"><div class="prog-fill {{['bad','warn','warn','good'][loop.index0]}}" style="width:{{p}}%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="tab-attendance" class="tab-pane hidden">
+      <div class="page-header"><h1>Take Attendance</h1><p>2-minute QR session · Biometric + QR · Approve & Save</p></div>
+      <div class="grid2 mb16">
+        <div class="card" style="text-align:center;padding:32px 24px">
+          <div class="card-title" style="justify-content:center"><i class="fa-solid fa-qrcode"></i> QR Session</div>
+          <div id="qr-start-zone">
+            <p style="font-size:.83rem;color:#6b7280;margin-bottom:20px">Start a 2-minute session. QR refreshes every 10s.</p>
+            <div class="form-group" style="text-align:left">
+              <label class="form-label">Subject</label>
+              <select class="form-control" id="att-subject">
+                <option>IOT</option><option>CSY</option><option>PSP</option><option>NWA</option><option>OSY</option><option>GE</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" style="width:100%;font-size:.95rem;padding:14px" onclick="startAttSession()">
+              <i class="fa-solid fa-play"></i> Start Attendance Session
+            </button>
+          </div>
+          <div id="qr-live-zone" style="display:none">
+            <div id="qr-display" style="width:180px;height:180px;margin:0 auto 16px;border:1px solid #e5e7eb;border-radius:12px;padding:8px;background:#fff"></div>
+            <div style="margin-bottom:6px;font-size:.78rem;color:#6b7280">Session time remaining</div>
+            <div id="session-countdown" style="font-size:2rem;font-weight:800;color:var(--c1);font-family:var(--mono)">02:00</div>
+            <div style="margin-top:12px"><span class="badge badge-green" id="qr-status-badge"><i class="fa-solid fa-wifi"></i> Session Active</span></div>
+            <button class="btn btn-danger" style="width:100%;margin-top:16px" onclick="endAttSession()"><i class="fa-solid fa-stop"></i> End Session</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-users"></i> Live Roster <span class="badge badge-green" id="live-count-badge">0 present</span></div>
+          <div id="roster-list" style="max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:8px">
+            <div style="text-align:center;padding:28px;color:#9ca3af;font-size:.83rem">
+              <i class="fa-solid fa-user-clock" style="font-size:2rem;display:block;margin-bottom:8px;opacity:.3"></i>Waiting for session to start...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="approval-card">
+        <div class="card-title"><i class="fa-solid fa-clipboard-check"></i> Attendance Approval Sheet</div>
+        <p style="font-size:.82rem;color:#6b7280;margin-bottom:16px">Toggle present/absent for each student, then save. Students below 75% will receive email alerts automatically.</p>
+        <table class="tbl" id="approval-table">
+          <tr><th>#</th><th>Student</th><th>Roll No</th><th>Status</th><th>Method</th><th>Toggle</th></tr>
+          {% for s in ['Aarav Shah','Priya Mehta','Rohan Patel','Sneha Joshi','Kiran Desai','Meera Shah','Arjun Kumar','Dev Sharma'] %}
+          <tr>
+            <td style="color:#9ca3af">{{ loop.index }}</td>
+            <td><div style="display:flex;align-items:center;gap:8px"><div style="width:8px;height:8px;border-radius:50%;background:{% if loop.index % 3 != 0 %}#10b981{% else %}#ef4444{% endif %}"></div><strong>{{ s }}</strong></div></td>
+            <td style="color:#9ca3af">CS40{{ '%02d'|format(loop.index) }}</td>
+            <td><span class="badge {% if loop.index % 3 != 0 %}badge-green{% else %}badge-red{% endif %}" id="al-{{ loop.index }}">{% if loop.index % 3 != 0 %}Present{% else %}Absent{% endif %}</span></td>
+            <td><span class="badge badge-gray">{% if loop.index % 3 != 0 %}QR+Face{% else %}—{% endif %}</span></td>
+            <td><button class="att-toggle {% if loop.index % 3 != 0 %}on{% else %}off{% endif %}" id="at-{{ loop.index }}" onclick="toggleAtt({{ loop.index }},this)"></button></td>
+          </tr>
+          {% endfor %}
+        </table>
+        <div style="margin-top:16px;display:flex;gap:10px">
+          <button class="btn btn-primary" onclick="saveAttendance(this)"><i class="fa-solid fa-floppy-disk"></i> Save & Send Email Reports</button>
+          <button class="btn btn-outline"><i class="fa-solid fa-download"></i> Export CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div id="tab-assignments" class="tab-pane hidden">
+      <div class="page-header"><h1>Assignment Centre</h1><p>Create · Track · Grade</p></div>
+      <div class="card mb16">
+        <div class="card-title"><i class="fa-solid fa-plus"></i> Post New Assignment</div>
+        <div class="grid2">
+          <div>
+            <div class="form-group"><label class="form-label">Title</label><input class="form-control" id="asgn-title" placeholder="e.g. IOT Network Topology"></div>
+            <div class="form-group"><label class="form-label">Subject</label><select class="form-control" id="asgn-sub"><option>IOT</option><option>CSY</option><option>PSP</option><option>NWA</option><option>OSY</option><option>GE</option></select></div>
+            <div class="grid2"><div class="form-group"><label class="form-label">Due Date</label><input class="form-control" type="date" id="asgn-due"></div>
+            <div class="form-group"><label class="form-label">Max Marks</label><input class="form-control" type="number" value="100" id="asgn-marks"></div></div>
+          </div>
+          <div><div class="form-group"><label class="form-label">Description</label><textarea class="form-control" id="asgn-desc" style="height:160px" placeholder="Describe the task..."></textarea></div></div>
+        </div>
+        <button class="btn btn-primary" onclick="postAssignment(this)"><i class="fa-solid fa-paper-plane"></i> Post to Class</button>
+      </div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-list-check"></i> Your Assignments</div>
+        {% for a in assignments %}
+        <div class="asgn-card">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start">
+            <div><div class="asgn-title">{{ a.title }}</div><div class="asgn-meta">{{ a.subject }} · Due {{ a.due_date }} · {{ a.max_marks }} marks</div></div>
+            <button class="btn btn-outline btn-sm"><i class="fa-solid fa-pen"></i> Grade</button>
+          </div>
+        </div>
+        {% else %}
+        <p style="color:#9ca3af;text-align:center;padding:20px">No assignments posted yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- TIMETABLE -->
+    <div id="tab-timetable" class="tab-pane hidden">
+      <div class="page-header"><h1>My Timetable</h1><p>Weekly schedule</p></div>
+      <div class="card"><p style="color:#6b7280;font-size:.85rem">Timetable grid rendered here — same as student view filtered by your subjects.</p></div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="tab-chat" class="tab-pane hidden">
+      <div class="page-header"><h1>Messages</h1><p>Communicate with students and parents</p></div>
+      <div class="chat-wrap">
+        <div class="chat-sidebar">
+          <div class="chat-search"><input placeholder="Search..." style="font-family:inherit"></div>
+          <div class="chat-list">
+            {% for name,av,role in [('Aarav Shah','AS','Student'),('Ramesh Shah','RS','Parent'),('Admin Office','AD','Admin')] %}
+            <div class="chat-item {% if loop.first %}active{% endif %}" onclick="selectChatItem(this,'{{name}}','{{av}}')">
+              <div class="av">{{av}}</div>
+              <div><div class="ci-name">{{name}}</div><div class="ci-preview">{{role}}</div></div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="av" id="t-chat-av">AS</div>
+            <div><div class="ch-name" id="t-chat-name">Aarav Shah</div><div class="ch-status">● Online</div></div>
+            <div style="margin-left:auto"><button class="btn btn-outline btn-sm" onclick="showTab('meetings',null)"><i class="fa-solid fa-video"></i> Call</button></div>
+          </div>
+          <div class="chat-msgs" id="t-chat-msgs">
+            <div class="msg"><div class="av">AS</div><div><div class="msg-bubble their">Sir, can I get an extension for the IOT assignment?</div><div class="msg-time">10:05 AM</div></div></div>
+          </div>
+          <div class="chat-input-wrap">
+            <input id="t-chat-inp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendTeacherMsg()">
+            <button class="btn btn-primary btn-sm" onclick="sendTeacherMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEETINGS -->
+    <div id="tab-meetings" class="tab-pane hidden">
+      <div class="page-header"><h1>Meetings</h1><p>Schedule and host class sessions</p></div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-calendar-plus"></i> Schedule Meeting</div>
+          <div class="form-group"><label class="form-label">Title</label><input class="form-control" id="mtg-title" placeholder="e.g. IOT Doubt Session"></div>
+          <div class="form-group"><label class="form-label">Date & Time</label><input class="form-control" type="datetime-local" id="mtg-dt"></div>
+          <div class="form-group"><label class="form-label">Audience</label>
+            <select class="form-control" id="mtg-audience"><option>CS Sem-4 (All)</option><option>CS Sem-4A</option><option>CS Sem-4B</option><option>Parents</option></select>
+          </div>
+          <button class="btn btn-primary" onclick="createMeeting(this)"><i class="fa-solid fa-video"></i> Create Meeting</button>
+        </div>
+        <div class="card">
+          <div class="card-title"><i class="fa-solid fa-video" style="color:#ef4444"></i> Live Room</div>
+          <div style="background:#0f0f1a;border-radius:14px;padding:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              {% for n,av in [('You (Host)','{{teacher_name[0]}}'),('Aarav Shah','AS'),('Priya Mehta','PM'),('Rohan Patel','RP')] %}
+              <div style="background:#1a2744;border-radius:10px;padding:20px;text-align:center">
+                <div style="width:44px;height:44px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 8px">{{av}}</div>
+                <div style="color:#fff;font-size:.75rem">{{n}}</div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="call-controls">
+              <div class="cc-btn"><i class="fa-solid fa-microphone"></i></div>
+              <div class="cc-btn"><i class="fa-solid fa-video"></i></div>
+              <div class="cc-btn"><i class="fa-solid fa-desktop"></i></div>
+              <div class="cc-btn danger"><i class="fa-solid fa-phone-slash"></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AI -->
+    <div id="tab-ai" class="tab-pane hidden">
+      <div class="page-header"><h1>AI Assistant</h1><p>Generate lesson plans, grade rubrics, email drafts</p></div>
+      <div class="ai-chat-wrap">
+        <div class="ai-header">
+          <div class="ai-av"><i class="fa-solid fa-robot"></i></div>
+          <div><div style="font-weight:700">StudX AI</div><div style="font-size:.72rem;color:#10b981">● Online</div></div>
+          <div style="margin-left:auto"><span class="badge badge-cyan">Teacher Mode</span></div>
+        </div>
+        <div id="ai-msgs" class="ai-msgs">
+          <div class="ai-bubble">Hello {{ teacher_name }}! I can help you draft lesson plans, generate assignment rubrics, write student feedback emails, or answer academic queries. What do you need?</div>
+          <div class="ai-quick-btns">
+            {% for q in ['Draft lesson plan for IoT','Generate assignment rubric','Write attendance alert email','Suggest class activity','Grade distribution analysis'] %}
+            <button class="btn btn-outline btn-sm" onclick="aiSend('{{q}}')">{{q}}</button>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="ai-input-wrap">
+          <input id="ai-inp" class="form-control" placeholder="Ask me anything..." onkeydown="if(event.key==='Enter')aiSend()">
+          <button class="btn btn-primary" onclick="aiSend()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/portal.js"></script>
+<script>
+document.getElementById('date-now').textContent=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long'});
+const TEACHER_AV="{{ teacher_name[0]|upper }}";
+let sessionToken=null, sessionInterval=null, rosterInterval=null, qrObj=null, sessionSecs=120;
+
+function startAttSession(){
+  const subject=document.getElementById('att-subject').value;
+  fetch('/api/start_attendance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({subject})})
+  .then(r=>r.json()).then(d=>{
+    if(d.status!=='ok')return;
+    sessionToken=d.token;
+    sessionSecs=d.expires_in||120;
+    document.getElementById('qr-start-zone').style.display='none';
+    document.getElementById('qr-live-zone').style.display='block';
+    // Generate QR
+    const qrEl=document.getElementById('qr-display');
+    qrEl.innerHTML='';
+    qrObj=new QRCode(qrEl,{text:d.token,width:160,height:160,colorDark:'#0c2340',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});
+    // Countdown
+    sessionInterval=setInterval(tickSession,1000);
+    // Refresh QR every 10s
+    setInterval(refreshQR,10000);
+    // Poll roster
+    rosterInterval=setInterval(pollRoster,3000);
+  });
+}
+
+function tickSession(){
+  sessionSecs--;
+  const m=String(Math.floor(sessionSecs/60)).padStart(2,'0');
+  const s=String(sessionSecs%60).padStart(2,'0');
+  document.getElementById('session-countdown').textContent=m+':'+s;
+  if(sessionSecs<=0)endAttSession();
+}
+
+function refreshQR(){
+  if(!sessionToken)return;
+  fetch('/api/refresh_qr',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_token:sessionToken})})
+  .then(r=>r.json()).then(d=>{
+    if(d.status==='ok'){
+      const qrEl=document.getElementById('qr-display');
+      qrEl.innerHTML='';
+      qrObj=new QRCode(qrEl,{text:d.token,width:160,height:160,colorDark:'#0c2340',colorLight:'#fff',correctLevel:QRCode.CorrectLevel.H});
+    }
+  });
+}
+
+function endAttSession(){
+  clearInterval(sessionInterval);clearInterval(rosterInterval);
+  if(sessionToken){
+    fetch('/api/close_session',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_token:sessionToken})});
+  }
+  sessionToken=null;
+  document.getElementById('qr-live-zone').style.display='none';
+  document.getElementById('qr-start-zone').style.display='block';
+  document.getElementById('qr-start-zone').innerHTML='<div style="font-size:2rem;margin-bottom:10px">✅</div><div style="font-weight:700;margin-bottom:8px">Session Ended</div><div style="font-size:.8rem;color:#6b7280;margin-bottom:16px">Review and approve the list below.</div><button class="btn btn-primary" onclick="location.reload()"><i class="fa-solid fa-rotate"></i> New Session</button>';
+}
+
+let rosterNames=new Set();
+function pollRoster(){
+  fetch('/api/attendance_log').then(r=>r.json()).then(d=>{
+    const count=d.students.length;
+    document.getElementById('live-count-badge').textContent=count+' present';
+    const list=document.getElementById('roster-list');
+    d.students.forEach(s=>{
+      const uid=s.student_name+s.timestamp;
+      if(rosterNames.has(uid))return;
+      rosterNames.add(uid);
+      const empty=list.querySelector('[style*="text-align:center"]');
+      if(empty)empty.remove();
+      const div=document.createElement('div');
+      div.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 12px;background:#f9fafb;border-radius:10px;animation:fadeUp .3s ease';
+      div.innerHTML=`<div style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0"></div>
+      <strong style="font-size:.85rem;flex:1">${s.student_name}</strong>
+      <span class="badge badge-green">${s.method}</span>`;
+      list.prepend(div);
+    });
+  });
+}
+
+function toggleAtt(i,btn){
+  const on=btn.classList.contains('on');
+  btn.classList.toggle('on',!on);btn.classList.toggle('off',on);
+  const lbl=document.getElementById('al-'+i);
+  if(lbl){lbl.className='badge '+(on?'badge-red':'badge-green');lbl.textContent=on?'Absent':'Present';}
+}
+
+function saveAttendance(btn){
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i> Saving...';
+  fetch('/api/save_attendance',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({records:[],session_id:1})})
+  .then(r=>r.json()).then(d=>{
+    btn.innerHTML='<i class="fa-solid fa-check-double"></i> Saved & Emails Sent!';
+    btn.style.background='#10b981';
+  }).catch(()=>{btn.innerHTML='<i class="fa-solid fa-check"></i> Saved Locally';btn.style.background='#10b981';});
+}
+
+function postAssignment(btn){
+  const title=document.getElementById('asgn-title').value;
+  if(!title)return;
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i> Posting...';
+  fetch('/api/create_assignment',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    title,subject:document.getElementById('asgn-sub').value,
+    description:document.getElementById('asgn-desc').value,
+    due_date:document.getElementById('asgn-due').value,
+    max_marks:document.getElementById('asgn-marks').value
+  })}).then(()=>{btn.innerHTML='<i class="fa-solid fa-check"></i> Posted!';btn.style.background='#10b981';});
+}
+
+function createMeeting(btn){
+  btn.innerHTML='<i class="fa-solid fa-spinner spin"></i>';
+  fetch('/api/create_meeting',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({
+    title:document.getElementById('mtg-title').value,
+    scheduled_at:document.getElementById('mtg-dt').value,
+    audience:document.getElementById('mtg-audience').value
+  })}).then(()=>{btn.innerHTML='<i class="fa-solid fa-check"></i> Scheduled!';btn.style.background='#10b981';});
+}
+
+function selectChatItem(el,name,av){
+  document.querySelectorAll('.chat-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');
+  document.getElementById('t-chat-name').textContent=name;
+  document.getElementById('t-chat-av').textContent=av;
+}
+
+function sendTeacherMsg(){
+  const inp=document.getElementById('t-chat-inp');const txt=inp.value.trim();if(!txt)return;
+  const msgs=document.getElementById('t-chat-msgs');
+  const d=document.createElement('div');d.className='msg mine';
+  d.innerHTML=`<div class="av" style="background:var(--c3);color:var(--c1)">${TEACHER_AV}</div>
+  <div><div class="msg-bubble mine">${txt}</div><div class="msg-time">Now</div></div>`;
+  msgs.appendChild(d);inp.value='';msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function aiSend(preset){
+  const inp=document.getElementById('ai-inp');
+  const text=preset||inp.value.trim();if(!text)return;inp.value='';
+  const msgs=document.getElementById('ai-msgs');
+  const ud=document.createElement('div');ud.style.cssText='display:flex;justify-content:flex-end;margin-bottom:6px';
+  ud.innerHTML=`<div class="msg-bubble mine" style="max-width:70%">${text}</div>`;msgs.appendChild(ud);
+  const td=document.createElement('div');td.className='ai-bubble';
+  td.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';msgs.appendChild(td);
+  msgs.scrollTop=msgs.scrollHeight;
+  setTimeout(()=>{
+    const resp={'Draft lesson plan for IoT':'IoT Lesson Plan — Week 5:\n1. Recap sensor types (10 min)\n2. Live demo: Arduino + DHT11 sensor reading (20 min)\n3. MQTT protocol explanation with diagrams (15 min)\n4. Student Q&A (10 min)\nHomework: Implement a temperature logger using ESP32.',
+    'Generate assignment rubric':'Assignment Rubric (IOT Network Topology):\n• Correctness of diagram (30%) — All nodes, connections, and protocols labeled\n• Written explanation (30%) — Clear, concise, technically accurate\n• Comparison analysis (20%) — Star vs Mesh vs Bus with IoT context\n• Presentation quality (20%) — Clean formatting, proper references'};
+    td.textContent=resp[text]||'AI-generated teacher assistance is available when connected to the Anthropic API. This would include lesson plans, rubrics, email drafts, and analytics.';
+    msgs.scrollTop=msgs.scrollHeight;
+  },1400);
+}
+function showTab(tabId, el) {
+  // 1. Hide all tab panes
+  document.querySelectorAll('.tab-pane').forEach(pane => {
+    pane.classList.add('hidden');
+    pane.classList.remove('active');
+  });
+
+  // 2. Show the selected tab pane
+  const selectedTab = document.getElementById('tab-' + tabId);
+  if (selectedTab) {
+    selectedTab.classList.remove('hidden');
+    selectedTab.classList.add('active');
+  }
+
+  // 3. Update sidebar UI (active state)
+  if (el) {
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.classList.remove('active');
+    });
+    el.classList.add('active');
+  }
+}
+</script>
+{% endblock %}

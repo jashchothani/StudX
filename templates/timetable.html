@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% block content %}
+<style>
+    body { background-color: #f8fafc; font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; padding: 0; }
+    .navbar { display: none !important; }
+    .header-banner { background: linear-gradient(135deg, #1e1b4b, #7c3aed); padding: 40px 20px; color: white; text-align: center; position: relative; }
+    .header-banner h1 { margin: 0; font-size: 2.5rem; font-weight: 800; }
+    .back-nav { position: absolute; top: 30px; left: 30px; color: white; text-decoration: none; font-weight: 700; background: rgba(255,255,255,0.2); padding: 10px 20px; border-radius: 20px; transition: 0.3s; }
+    .back-nav:hover { background: rgba(255,255,255,0.3); transform: translateX(-5px); }
+
+    /* WIDESCREEN CONTAINER */
+    .generator-container { max-width: 98%; margin: -30px auto 50px; padding: 0 20px; position: relative; z-index: 10; }
+    .builder-grid { display: grid; grid-template-columns: 1.2fr 2.5fr; gap: 30px; margin-bottom: 30px; }
+    
+    .input-panel { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); }
+    .panel-title { display: flex; justify-content: space-between; border-bottom: 2px solid #f1f5f9; padding-bottom: 15px; margin-bottom: 20px; color: #1e1b4b; font-size: 1.3rem; margin-top: 0; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 5px; }
+    .form-group select, .form-group input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 10px; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #1e1b4b; outline: none; box-sizing: border-box; }
+    .hrs-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    .split-dropdown { display: grid; grid-template-columns: 2fr 1fr; gap: 10px; }
+    
+    .add-btn { width: 100%; background: #4f46e5; color: white; border: none; padding: 15px; border-radius: 12px; font-size: 1.1rem; font-weight: 800; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+    .add-btn:hover { background: #4338ca; transform: translateY(-2px); }
+    .sample-btn { background: #fef08a; color: #854d0e; border: none; padding: 8px 15px; border-radius: 8px; font-weight: 800; cursor: pointer; transition: 0.3s; font-size: 0.9rem; }
+    .sample-btn:hover { background: #fde047; }
+
+    .config-table-wrap { background: white; border-radius: 20px; padding: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.05); max-height: 600px; overflow-y: auto; }
+    .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .data-table th { background: #f8fafc; color: #475569; font-weight: 800; padding: 15px; font-size: 0.85rem; text-transform: uppercase; position: sticky; top: 0; z-index: 2;}
+    .data-table td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; font-weight: 600; color: #1e1b4b; font-size: 0.9rem; }
+    .del-btn { color: #ef4444; background: #fee2e2; border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 700; }
+
+    .generate-section { text-align: center; margin-top: 20px; }
+    .generate-btn { background: linear-gradient(135deg, #7c3aed, #f472b6); color: white; border: none; padding: 20px 60px; border-radius: 30px; font-size: 1.3rem; font-weight: 800; cursor: pointer; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.3); transition: 0.3s; }
+    
+    #result-panel { margin-top: 40px; display: none; }
+    .result-header { display: flex; justify-content: space-between; align-items: center; background: white; padding: 25px 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); margin-bottom: 30px; }
+    .result-header h2 { margin: 0; color: #1e1b4b; }
+    .download-btn { background: #10b981; color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px; }
+    
+    .division-card { background: white; border-radius: 20px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); margin-bottom: 50px; overflow: hidden; border: 1px solid #e2e8f0; }
+    .division-header { background: #1e1b4b; color: white; padding: 20px 30px; margin: 0; font-size: 1.4rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    
+    .matrix-table { width: 100%; border-collapse: collapse; background: white; text-align: center; table-layout: fixed; }
+    .matrix-table th { background: #f8fafc; color: #1e1b4b; font-weight: 800; text-transform: uppercase; font-size: 0.95rem; padding: 15px; border: 1px solid #cbd5e1; }
+    
+    /* 🔴 THE FIX: Removed fixed height to let boxes expand cleanly */
+    .matrix-table td { padding: 0; border: 1px solid #cbd5e1; vertical-align: top; }
+    .time-col { background: #f8fafc; font-weight: 800; color: #1e1b4b; padding: 15px !important; vertical-align: middle !important; font-size: 1.05rem;}
+    
+    /* 🔴 THE FIX: Flex container ensures parallel labs split nicely without breaking out */
+    .cell-wrapper { display: flex; flex-direction: column; height: 100%; }
+    .cell-block { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 15px 10px; box-sizing: border-box; min-height: 110px; position: relative; }
+    .split-cell { border-bottom: 2px dashed #94a3b8; }
+    .split-cell:last-child { border-bottom: none; }
+
+    .subj { font-weight: 800; color: #1e1b4b; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 5px;}
+    .type-cl { color: #0284c7; font-weight: 800; font-size: 0.75rem; background: #e0f2fe; padding: 2px 6px; border-radius: 6px; }
+    .type-ll { color: #db2777; font-weight: 800; font-size: 0.75rem; background: #fce7f3; padding: 2px 6px; border-radius: 6px; }
+    .type-tl { color: #ca8a04; font-weight: 800; font-size: 0.75rem; background: #fef08a; padding: 2px 6px; border-radius: 6px; }
+    
+    .batch-tag { color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 800; }
+    .batch-s1 { background: #f59e0b; }
+    .batch-s2 { background: #8b5cf6; }
+
+    .room { color: #475569; font-weight: 800; font-size: 0.85rem; margin-bottom: 2px;}
+    .fac { color: #4f46e5; font-weight: 900; font-size: 0.9rem; }
+    
+    /* Perfect centering for recess */
+    .recess-td { vertical-align: middle !important; }
+    .recess-block { display: block; background-color: #06b6d4 !important; color: white !important; font-weight: 900 !important; letter-spacing: 3px; font-size: 1.2rem; padding: 40px 0; }
+
+    #loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(255,255,255,0.9); z-index: 1000; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); }
+    .spinner { border: 6px solid #f1f5f9; border-top: 6px solid #7c3aed; border-radius: 50%; width: 70px; height: 70px; animation: spin 1s linear infinite; margin-bottom: 20px; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+</style>
+
+<div class="header-banner">
+    <a href="/dashboard" class="back-nav"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+    <h1><i class="fa-solid fa-brain"></i> Algorithmic Timetable Engine</h1>
+    <p>Select Semesters, assign divisions (A/B), and generate accurate S1/S2 batch matrices.</p>
+</div>
+
+<div class="generator-container">
+    
+    <div class="builder-grid">
+        <div class="input-panel">
+            <div class="panel-title">
+                <h3 style="margin:0;"><i class="fa-solid fa-layer-group"></i> Add Course</h3>
+                <button class="sample-btn" onclick="loadSampleData()"><i class="fa-solid fa-bolt"></i> Load SBMP Sample</button>
+            </div>
+            
+            <div class="split-dropdown">
+                <div class="form-group">
+                    <label>Semester</label>
+                    <select id="ui-sem" onchange="updateSubjects()">
+                        <option value="Sem-1">Sem-1 (FY)</option><option value="Sem-2">Sem-2 (FY)</option>
+                        <option value="Sem-3">Sem-3 (SY)</option><option value="Sem-4">Sem-4 (SY)</option>
+                        <option value="Sem-5">Sem-5 (TY)</option><option value="Sem-6">Sem-6 (TY)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Division</label>
+                    <select id="ui-div">
+                        <option value="A">Div A</option>
+                        <option value="B">Div B</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Subject</label>
+                <select id="ui-sub" onchange="autoFillHours()"></select>
+            </div>
+            
+            <div class="form-group">
+                <label>Faculty</label>
+                <select id="ui-fac">
+                    <option value="Shri J.S. Kulkarni">Shri J.S. Kulkarni (H.O.D)</option>
+                    <option value="Mrs. P.S. Arora">Mrs. P.S. Arora</option>
+                    <option value="Mrs. S. Geetha">Mrs. S. Geetha</option>
+                    <option value="Shri S.U. Masurkar">Shri S.U. Masurkar</option>
+                    <option value="Shri P.H. Shah">Shri P.H. Shah</option>
+                    <option value="Mrs. R.V. Pawar">Mrs. R.V. Pawar</option>
+                    <option value="Ms N.I. More">Ms N.I. More</option>
+                    <option value="Ms S.R. Kadam">Ms S.R. Kadam</option>
+                    <option value="Mrs. P.P. Bokhariya">Mrs. P.P. Bokhariya</option>
+                    <option value="Mr A.A. Singh">Mr A.A. Singh</option>
+                    <option value="Mr A.A. Jogale">Mr A.A. Jogale</option>
+                    <option value="Mr A.R. Gupta">Mr A.R. Gupta</option>
+                    <option value="Ms. P.B. Natekar">Ms. P.B. Natekar</option>
+                    <option value="Mr. P.D. Rathod">Mr. P.D. Rathod</option>
+                </select>
+            </div>
+            
+            <div class="hrs-grid">
+                <div class="form-group"><label>Theory</label><input type="number" id="ui-th" value="3" min="0"></div>
+                <div class="form-group"><label>Tutorial</label><input type="number" id="ui-tl" value="0" min="0"></div>
+                <div class="form-group"><label>Lab</label><input type="number" id="ui-lab" value="2" min="0"></div>
+            </div>
+            
+            <button class="add-btn" onclick="addToConfig()"><i class="fa-solid fa-plus"></i> Add to Configuration</button>
+        </div>
+
+        <div class="config-table-wrap">
+            <h3 class="panel-title" style="margin-top:0;"><i class="fa-solid fa-database"></i> Active Configuration</h3>
+            <table class="data-table" id="config-table">
+                <thead><tr><th>Div</th><th>Subject</th><th>Faculty</th><th>TH</th><th>TL</th><th>LB</th><th>Action</th></tr></thead>
+                <tbody id="config-body"></tbody>
+            </table>
+            <p id="empty-state" style="text-align:center; color:#94a3b8; font-weight:600; margin-top:40px;">No courses added yet.</p>
+        </div>
+    </div>
+
+    <div class="generate-section">
+        <button class="generate-btn" onclick="generateTimetable()"><i class="fa-solid fa-wand-magic-sparkles"></i> Generate Matrix Schedule</button>
+    </div>
+
+    <div id="result-panel">
+        <div class="result-header">
+            <h2 id="result-title"><i class="fa-solid fa-table-cells" style="color:#10b981;"></i> Official Timetable Matrix</h2>
+            <button class="download-btn" onclick="downloadCSV()"><i class="fa-solid fa-file-excel"></i> Export to CSV</button>
+        </div>
+        <div id="warning-box" style="display:none; background: #fee2e2; color: #b91c1c; padding: 15px; border-radius: 10px; margin-bottom: 20px; font-weight: 700;"></div>
+        <div id="tables-container"></div>
+    </div>
+</div>
+
+<div id="loading-overlay">
+    <div class="spinner"></div>
+    <h2 style="color: #1e1b4b;">Building the S1/S2 Matrix...</h2>
+    <p style="color: #64748b;">Compacting schedule and generating parallel batches.</p>
+</div>
+
+<script>
+    const sbmpCurriculum = {
+        "Sem-1": ["Engineering Mathematics (EMT)", "Applied Science (ASC)", "Communication Skills (CMS)", "Engineering Graphics (ENG)", "Fundamentals of Computing (FCS)", "Universal Human Values (UHV)", "Website Designing (WSD)"],
+        "Sem-2": ["Applied Mathematics (AMT)", "Environmental Studies (EVS)", "Workshop & Practices (CWP)", "Basic Electronics (BEX)", "Programming in C (PRC)", "Fundamentals of Computer Network (FCN)", "Fundamentals of Scripting Language (FSL)"],
+        "Sem-3": ["Programming in JAVA (PRJ)", "Data Structure (DST)", "Event Driven & UI Programming (EUP)", "Database Management System (DBS)", "Fundamentals of Microprocessor (FMP)", "Linux Lab (LXL)"],
+        "Sem-4": ["Operating System (OSY)", "Programming In Python (PRP)", "Elective-I (CSY/ADB)", "IoT & Applications (IOT)", "Network Administration (NWA)", "Project Survey & Practices (PSP)"],
+        "Sem-5": ["Cloud Services & Application (CSA)", "Machine Learning & Tools (MLT)", "Project (PRO)", "Software Development Methodology (SDM)", "Elective-II (FSD/BSA/BCT)", "Entrepreneurship Development (EDS)"],
+        "Sem-6": ["Python", "Artificial Intelligence", "Cloud Computing", "Project"]
+    };
+
+    const subjectHours = {
+        "Engineering Mathematics (EMT)": {th: 3, tl: 2, lab: 0}, "Applied Science (ASC)": {th: 3, tl: 0, lab: 2}, "Communication Skills (CMS)": {th: 3, tl: 1, lab: 0}, "Engineering Graphics (ENG)": {th: 2, tl: 0, lab: 2}, "Fundamentals of Computing (FCS)": {th: 2, tl: 0, lab: 2}, "Universal Human Values (UHV)": {th: 2, tl: 1, lab: 0}, "Website Designing (WSD)": {th: 2, tl: 0, lab: 4},
+        "Applied Mathematics (AMT)": {th: 3, tl: 2, lab: 0}, "Environmental Studies (EVS)": {th: 2, tl: 0, lab: 0}, "Workshop & Practices (CWP)": {th: 0, tl: 0, lab: 2}, "Basic Electronics (BEX)": {th: 3, tl: 0, lab: 2}, "Programming in C (PRC)": {th: 2, tl: 0, lab: 4}, "Fundamentals of Computer Network (FCN)": {th: 4, tl: 0, lab: 2}, "Fundamentals of Scripting Language (FSL)": {th: 2, tl: 0, lab: 4},
+        "Programming in JAVA (PRJ)": {th: 2, tl: 0, lab: 4}, "Data Structure (DST)": {th: 4, tl: 0, lab: 2}, "Event Driven & UI Programming (EUP)": {th: 2, tl: 0, lab: 4}, "Database Management System (DBS)": {th: 4, tl: 0, lab: 2}, "Fundamentals of Microprocessor (FMP)": {th: 4, tl: 0, lab: 2}, "Linux Lab (LXL)": {th: 0, tl: 0, lab: 2},
+        "Operating System (OSY)": {th: 4, tl: 0, lab: 2}, "Programming In Python (PRP)": {th: 2, tl: 0, lab: 4}, "Elective-I (CSY/ADB)": {th: 4, tl: 0, lab: 2}, "IoT & Applications (IOT)": {th: 4, tl: 0, lab: 2}, "Network Administration (NWA)": {th: 2, tl: 0, lab: 4}, "Project Survey & Practices (PSP)": {th: 0, tl: 0, lab: 2},
+        "Cloud Services & Application (CSA)": {th: 4, tl: 0, lab: 2}, "Machine Learning & Tools (MLT)": {th: 4, tl: 0, lab: 2}, "Project (PRO)": {th: 0, tl: 0, lab: 6}, "Software Development Methodology (SDM)": {th: 4, tl: 0, lab: 2}, "Elective-II (FSD/BSA/BCT)": {th: 4, tl: 0, lab: 2}, "Entrepreneurship Development (EDS)": {th: 3, tl: 0, lab: 2}
+    };
+
+    let activeConfiguration = [];
+    let generatedScheduleData = null;
+
+    // 🔴 THE TIME SORTER FIX: This explicitly guarantees chronological order
+    const globalTimeOrder = ["08:00 - 09:00", "09:00 - 10:00", "10:00 - 11:00", "11:00 - 12:00", "12:00 - 01:00", "01:00 - 02:00", "02:00 - 03:00", "03:00 - 04:00"];
+
+    window.onload = function() { updateSubjects(); }
+
+    function updateSubjects() {
+        const sem = document.getElementById('ui-sem').value;
+        const subSelect = document.getElementById('ui-sub');
+        subSelect.innerHTML = '';
+        sbmpCurriculum[sem].forEach(sub => {
+            let opt = document.createElement('option'); opt.value = sub; opt.innerText = sub;
+            subSelect.appendChild(opt);
+        });
+        autoFillHours(); 
+    }
+
+    function autoFillHours() {
+        const sub = document.getElementById('ui-sub').value;
+        const thBox = document.getElementById('ui-th');
+        const tlBox = document.getElementById('ui-tl');
+        const labBox = document.getElementById('ui-lab');
+
+        if (subjectHours[sub]) {
+            thBox.value = subjectHours[sub].th; tlBox.value = subjectHours[sub].tl; labBox.value = subjectHours[sub].lab;
+            tlBox.style.backgroundColor = subjectHours[sub].tl > 0 ? "#fef2f2" : "";
+        }
+    }
+
+    function loadSampleData() {
+        activeConfiguration = [];
+        const sample = [
+            { fac: "Mr A.A. Singh", sub: "Engineering Mathematics (EMT)", div: "Sem-1-A", th: 3, tl: 2, lab: 0 },
+            { fac: "Mrs. P.S. Arora", sub: "Applied Science (ASC)", div: "Sem-1-A", th: 3, tl: 0, lab: 2 },
+            { fac: "Ms N.I. More", sub: "Communication Skills (CMS)", div: "Sem-1-A", th: 3, tl: 1, lab: 0 },
+            { fac: "Shri P.H. Shah", sub: "Engineering Graphics (ENG)", div: "Sem-1-B", th: 2, tl: 0, lab: 2 },
+            { fac: "Shri J.S. Kulkarni", sub: "Fundamentals of Computing (FCS)", div: "Sem-1-B", th: 2, tl: 0, lab: 2 },
+            { fac: "Mrs. P.P. Bokhariya", sub: "Website Designing (WSD)", div: "Sem-1-B", th: 2, tl: 0, lab: 4 }
+        ];
+        sample.forEach(d => {
+            activeConfiguration.push({ id: Date.now() + Math.random(), division: d.div, subject: d.sub, faculty: d.fac, theoryHours: d.th, tutorialHours: d.tl, labHours: d.lab });
+        });
+        renderTable();
+    }
+
+    function addToConfig() {
+        const sem = document.getElementById('ui-sem').value;
+        const div = document.getElementById('ui-div').value;
+        const fullDiv = `${sem}-${div}`; // Combines into "Sem-1-A"
+        
+        const sub = document.getElementById('ui-sub').value;
+        const fac = document.getElementById('ui-fac').value;
+        const th = document.getElementById('ui-th').value;
+        const tl = document.getElementById('ui-tl').value;
+        const lab = document.getElementById('ui-lab').value;
+
+        activeConfiguration.push({ id: Date.now(), division: fullDiv, subject: sub, faculty: fac, theoryHours: th, tutorialHours: tl, labHours: lab });
+        renderTable();
+    }
+
+    function removeRow(id) {
+        activeConfiguration = activeConfiguration.filter(item => item.id !== id);
+        renderTable();
+    }
+
+    function renderTable() {
+        const tbody = document.getElementById('config-body');
+        const emptyState = document.getElementById('empty-state');
+        tbody.innerHTML = '';
+        emptyState.style.display = activeConfiguration.length === 0 ? 'block' : 'none';
+
+        activeConfiguration.forEach(item => {
+            tbody.innerHTML += `<tr>
+                <td><span style="background:#e2e8f0; padding:4px 8px; border-radius:6px; font-size:0.8rem; font-weight:800;">${item.division}</span></td>
+                <td>${item.subject}</td><td style="color:#7c3aed; font-weight:800;">${item.faculty}</td>
+                <td>${item.theoryHours}</td><td>${item.tutorialHours}</td><td>${item.labHours}</td>
+                <td><button class="del-btn" onclick="removeRow(${item.id})"><i class="fa-solid fa-xmark"></i></button></td>
+            </tr>`;
+        });
+    }
+
+    async function generateTimetable() {
+        if (activeConfiguration.length === 0) return alert("Please add at least one course!");
+        document.getElementById('loading-overlay').style.display = 'flex';
+        document.getElementById('result-panel').style.display = 'none';
+        document.getElementById('warning-box').style.display = 'none';
+
+        try {
+            const response = await fetch('/api/generate-timetable', {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ curriculum: activeConfiguration })
+            });
+            const data = await response.json();
+            document.getElementById('loading-overlay').style.display = 'none';
+            
+            if (data.success) {
+                generatedScheduleData = data.schedule; 
+                if (data.warning) {
+                    const warnBox = document.getElementById('warning-box');
+                    warnBox.style.display = 'block';
+                    warnBox.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> ${data.warning}<br><small>${data.unplaced_details.join(", ")}</small>`;
+                }
+                renderMatrixTables(data.schedule);
+                document.getElementById('result-panel').style.display = 'block';
+            } else { alert("Algorithm Error: " + data.error); }
+        } catch (error) {
+            document.getElementById('loading-overlay').style.display = 'none';
+            alert("Connection error occurred.");
+        }
+    }
+
+    function renderMatrixTables(schedule) {
+        const container = document.getElementById('tables-container');
+        container.innerHTML = ''; 
+        const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        
+        const divisionsWithData = Object.keys(schedule["Monday"] || {}).filter(div => {
+            return daysOfWeek.some(day => schedule[day] && schedule[day][div] && schedule[day][div].length > 0);
+        });
+
+        divisionsWithData.forEach(div => {
+            let timeSet = new Set();
+            daysOfWeek.forEach(day => {
+                if(schedule[day][div]) {
+                    schedule[day][div].forEach(slot => timeSet.add(slot.time));
+                }
+            });
+            
+            // 🔴 THE FIX: Sort times perfectly using the global clock array
+            let sortedTimes = Array.from(timeSet).sort((a, b) => globalTimeOrder.indexOf(a) - globalTimeOrder.indexOf(b));
+            if(sortedTimes.length === 0) return; 
+
+            let html = `
+            <div class="division-card">
+                <h3 class="division-header"><i class="fa-solid fa-users-rectangle"></i> Class: ${div}</h3>
+                <div style="overflow-x: auto;">
+                    <table class="matrix-table">
+                        <thead><tr><th class="time-col">Time</th><th>Mon</th><th>Tue</th><th>Wed</th><th>Thu</th><th>Fri</th><th>Sat</th></tr></thead>
+                        <tbody>`;
+
+            sortedTimes.forEach(time => {
+                html += `<tr><td class="time-col">${time}</td>`;
+                daysOfWeek.forEach(day => {
+                    const slotData = schedule[day][div].find(s => s.time === time);
+
+                    if (slotData && slotData.classes.length > 0) {
+                        if (slotData.classes[0].subject === 'RECESS') {
+                            html += `<td class="recess-td"><span class="recess-block">RECESS</span></td>`;
+                        } else {
+                            html += `<td><div class="cell-wrapper">`;
+                            slotData.classes.forEach((cls, idx) => {
+                                let typeLabel = 'CL'; let badgeStyle = 'type-cl';
+                                if (cls.type.includes('Lab')) { typeLabel = 'LL'; badgeStyle = 'type-ll'; }
+                                if (cls.type.includes('Tutorial')) { typeLabel = 'TL'; badgeStyle = 'type-tl'; }
+                                
+                                let groupBadge = '';
+                                if (cls.group === 'S1') groupBadge = `<span class="batch-tag batch-s1">S1</span>`;
+                                if (cls.group === 'S2') groupBadge = `<span class="batch-tag batch-s2">S2</span>`;
+                                
+                                let splitClass = slotData.classes.length > 1 ? 'split-cell' : '';
+
+                                html += `
+                                <div class="cell-block ${splitClass}">
+                                    <span class="subj">${groupBadge}${cls.subject.split('(')[0].substring(0, 15)} <span class="${badgeStyle}">(${typeLabel})</span></span>
+                                    <span class="room"><i class="fa-solid fa-door-open"></i> ${cls.room}</span>
+                                    <span class="fac"><i class="fa-solid fa-chalkboard-user"></i> ${cls.faculty.split(' ')[1] || cls.faculty}</span>
+                                </div>`;
+                            });
+                            html += `</div></td>`;
+                        }
+                    } else { html += `<td></td>`; }
+                });
+                html += `</tr>`;
+            });
+            html += `</tbody></table></div></div>`;
+            container.innerHTML += html;
+        });
+    }
+
+    function downloadCSV() {
+        if (!generatedScheduleData) return;
+        let csvContent = "data:text/csv;charset=utf-8,Day,Division,Time,Group,Subject,Type,Faculty,Room\n";
+        const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        
+        daysOfWeek.forEach(day => {
+            for (const div in generatedScheduleData[day]) {
+                generatedScheduleData[day][div].forEach(slot => {
+                    slot.classes.forEach(cls => {
+                        csvContent += `"${day}","${div}","${cls.time}","${cls.group}","${cls.subject}","${cls.type}","${cls.faculty}","${cls.room}"\n`;
+                    });
+                });
+            }
+        });
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a"); link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "StudX_Batch_Timetable.csv");
+        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+    }
+</script>
+{% endblock %}

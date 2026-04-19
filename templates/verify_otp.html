@@ -1,0 +1,60 @@
+{% extends 'base2.html' %}
+{% block extra_head %}
+<style>
+body{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#f0f4ff,#faf5ff)}
+.otp-card{background:#fff;border-radius:24px;padding:40px;box-shadow:0 4px 40px rgba(109,40,217,0.1);border:1px solid #ede9fe;width:100%;max-width:420px;text-align:center}
+.otp-icon{width:64px;height:64px;background:#ede9fe;border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:1.8rem;color:#6d28d9;margin:0 auto 20px}
+h2{font-size:1.3rem;font-weight:800;color:#1a1d2e;margin-bottom:8px}
+.sub{font-size:0.83rem;color:#6b7280;line-height:1.6;margin-bottom:28px}
+.otp-inputs{display:flex;gap:12px;justify-content:center;margin-bottom:24px}
+.otp-inputs input{width:52px;height:60px;border:2px solid #e5e7eb;border-radius:12px;text-align:center;font-size:1.5rem;font-weight:800;color:#1a1d2e;outline:none;transition:.2s;font-family:var(--mono)}
+.otp-inputs input:focus{border-color:#6d28d9;background:#f5f3ff}
+.btn-verify{width:100%;padding:14px;background:linear-gradient(135deg,#6d28d9,#8b5cf6);color:#fff;border:none;border-radius:12px;font-size:0.95rem;font-weight:700;cursor:pointer;transition:.2s}
+.btn-verify:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(109,40,217,0.3)}
+.back-link{margin-top:16px;font-size:0.8rem;color:#6b7280}
+.back-link a{color:#6d28d9;font-weight:600}
+</style>
+{% endblock %}
+{% block content %}
+<div class="otp-card">
+  <div class="otp-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+  <h2>Verify Your Identity</h2>
+  <p class="sub">A 6-digit code has been sent to your registered email address. Enter it below to continue.</p>
+  <form method="POST" action="/verify-otp" id="otp-form">
+    <div class="otp-inputs">
+      {% for i in range(1,7) %}
+      <input type="text" 
+       maxlength="1" 
+       id="o{{i}}" 
+       name="d{{i}}" 
+       inputmode="numeric" 
+       oninput="otpNext(this, '{{i}}')" 
+       onkeydown="otpBack(event, '{{i}}')">
+      {% endfor %}
+    </div>
+    <input type="hidden" name="otp" id="otp-hidden">
+    <button class="btn-verify" type="submit" onclick="combineOTP()">
+      <i class="fa-solid fa-shield-check"></i> Verify & Enter
+    </button>
+  </form>
+  <div class="back-link"><a href="/login">← Back to Login</a></div>
+</div>
+<script>
+function otpNext(el, idx){
+  if(el.value.length==1 && idx<6){
+    document.getElementById('o'+(idx+1)).focus();
+  }
+}
+function otpBack(e, idx){
+  if(e.key==='Backspace' && !document.getElementById('o'+idx).value && idx>1){
+    document.getElementById('o'+(idx-1)).focus();
+  }
+}
+function combineOTP(){
+  let code='';
+  for(let i=1;i<=6;i++) code+=document.getElementById('o'+i).value;
+  document.getElementById('otp-hidden').value=code;
+}
+document.getElementById('o1').focus();
+</script>
+{% endblock %}

@@ -1,0 +1,209 @@
+{% extends 'base2.html' %}
+{% block extra_head %}
+<link rel="stylesheet" href="/static/css/portal.css">
+<style>:root{--c1:#047857;--c2:#059669;--c3:#d1fae5;--c4:#a7f3d0;--ctext:#064e3b;--sidebar:#052e16;--accent:#34d399}</style>
+{% endblock %}
+{% block content %}
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo"><i class="fa-solid fa-people-roof"></i></div>
+      <div><div class="brand-name">StudX</div><div class="brand-role">Parent Portal</div></div>
+    </div>
+    <span class="nav-section">My Child</span>
+    <div class="nav-item active" onclick="showTab('overview',this)"><i class="fa-solid fa-house"></i> Overview</div>
+    <div class="nav-item" onclick="showTab('attendance',this)"><i class="fa-solid fa-calendar-check"></i> Attendance</div>
+    <div class="nav-item" onclick="showTab('assignments',this)"><i class="fa-solid fa-book-open"></i> Assignments</div>
+    <div class="nav-item" onclick="showTab('progress',this)"><i class="fa-solid fa-chart-bar"></i> Progress</div>
+    <span class="nav-section">Connect</span>
+    <div class="nav-item" onclick="showTab('chat',this)"><i class="fa-solid fa-comment-dots"></i> Messages</div>
+    <div class="nav-item" onclick="showTab('meetings',this)"><i class="fa-solid fa-video"></i> PTM Calls</div>
+    <div class="sidebar-bottom">
+      <div class="user-chip">
+        <div class="user-av">{{ parent_name[0]|upper }}</div>
+        <div class="user-info"><div class="uname">{{ parent_name }}</div><div class="urole">Parent</div></div>
+      </div>
+      <a href="/logout" class="logout-link"><i class="fa-solid fa-right-from-bracket"></i> Sign Out</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- OVERVIEW -->
+    <div id="tab-overview" class="tab-pane active">
+      <div class="page-header">
+        <h1>Welcome, {{ parent_name }}</h1>
+        <p>{% if child %}Tracking: <strong>{{ child.name }}</strong> · {{ child.semester }} Division {{ child.division }}{% else %}No child linked yet{% endif %}</p>
+      </div>
+      {% if not child %}
+      <div class="notif warn"><i class="fa-solid fa-triangle-exclamation"></i> No student account linked. Contact admin to link your child's profile.</div>
+      {% else %}
+      <div class="notif danger mb16"><i class="fa-solid fa-triangle-exclamation"></i> <strong>Weekly Alert:</strong> {{ child.name }}'s overall attendance needs attention. Check the Attendance tab for details.</div>
+      <div class="grid4 mb16">
+        <div class="stat-chip"><div class="si green"><i class="fa-solid fa-calendar-check"></i></div><div class="sv">83%</div><div class="sl">Overall Attendance</div></div>
+        <div class="stat-chip"><div class="si blue"><i class="fa-solid fa-star"></i></div><div class="sv">A</div><div class="sl">Current Grade</div></div>
+        <div class="stat-chip"><div class="si amber"><i class="fa-solid fa-file-pen"></i></div><div class="sv">{{ assignments|length }}</div><div class="sl">Assignments</div></div>
+        <div class="stat-chip"><div class="si red"><i class="fa-solid fa-triangle-exclamation"></i></div><div class="sv">2</div><div class="sl">Subjects Below 75%</div></div>
+      </div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="fa-solid fa-chart-bar"></i> Subject Attendance</div>
+          {% for s,p in [('IOT',72),('CSY',84),('PSP',80),('NWA',76),('OSY',70),('GE',96)] %}
+          <div style="margin-bottom:11px">
+            <div class="flex-between mb4">
+              <div class="prog-fill {{ 'bad' if p < 75 else 'warn' if p < 85 else 'good' }}" 
+     style="--progress: {{ p }}%;">
+</div>
+              <div class="prog-fill {{ 'bad' if p < 75 else 'warn' if p < 85 else 'good' }}" 
+     style="--progress: {{ p }}%;">
+</div>
+            </div>
+            <div class="prog-bar"><div class="prog-fill {{ 'bad' if p < 75 else 'warn' if p < 85 else 'good' }}" style="width:{{ p }}%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="card"><div class="card-title"><i class="fa-solid fa-clipboard-list"></i> Recent Assignment Status</div>
+          {% for a in assignments[:5] %}
+          <div class="flex-between" style="padding:10px 0;border-bottom:1px solid #f3f4f6">
+            <div><div style="font-size:.85rem;font-weight:600">{{ a.title }}</div>
+            <div style="font-size:.72rem;color:#9ca3af">Due {{ a.due_date or 'TBD' }}</div></div>
+            <span class="badge badge-amber">Pending</span>
+          </div>
+          {% else %}
+          <p style="color:#9ca3af;text-align:center;padding:16px">No assignments</p>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ATTENDANCE -->
+    <div id="tab-attendance" class="tab-pane hidden">
+      <div class="page-header"><h1>Attendance Details</h1>{% if child %}<p>{{ child.name }} · {{ child.semester }}</p>{% endif %}</div>
+      <div class="card">
+        <div class="card-title"><i class="fa-solid fa-calendar"></i> Recent Attendance Log</div>
+        {% if logs %}
+        <table class="tbl"><tr><th>Date</th><th>Method</th><th>Status</th></tr>
+        {% for l in logs[:20] %}
+        <tr><td style="color:#6b7280">{{ l.timestamp }}</td>
+        <td><span class="badge badge-gray">{{ l.method }}</span></td>
+        <td><span class="badge badge-green">Present</span></td></tr>
+        {% endfor %}
+        </table>
+        {% else %}
+        <p style="color:#9ca3af;text-align:center;padding:24px">No attendance records found.</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ASSIGNMENTS -->
+    <div id="tab-assignments" class="tab-pane hidden">
+      <div class="page-header"><h1>Assignments</h1><p>Track your child's coursework</p></div>
+      {% for a in assignments %}
+      <div class="asgn-card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <div><div class="asgn-title">{{ a.title }}</div><div class="asgn-meta">{{ a.subject }} · Due {{ a.due_date or 'TBD' }}</div></div>
+          <span class="badge badge-amber">Pending</span>
+        </div>
+        <div class="asgn-desc">{{ a.description or 'No description' }}</div>
+      </div>
+      {% else %}
+      <div class="card" style="text-align:center;padding:32px;color:#9ca3af">No assignments yet.</div>
+      {% endfor %}
+    </div>
+
+    <!-- PROGRESS -->
+    <div id="tab-progress" class="tab-pane hidden">
+      <div class="page-header"><h1>Academic Progress</h1><p>Full semester overview</p></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="fa-solid fa-chart-line"></i> Test Scores</div>
+          {% for s,p in [('IOT',78),('CSY',85),('PSP',90),('NWA',72),('OSY',68),('GE',95)] %}
+          <div style="margin-bottom:10px">
+            <div class="flex-between mb4"><span style="font-size:.82rem;font-weight:600">{{ s }}</span><span style="font-size:.78rem;font-weight:700;color:{{ '#10b981' if p >= 80 else '#f59e0b' }}">{{ p }}/100</span></div>
+            <div class="prog-bar"><div class="prog-fill {{ 'good' if p >= 80 else 'warn' }}" style="width:{{ p }}%"></div></div>
+          </div>
+          {% endfor %}
+        </div>
+        <div class="card"><div class="card-title"><i class="fa-solid fa-trophy"></i> Grade Card</div>
+          <table class="tbl"><tr><th>Subject</th><th>IA1</th><th>IA2</th><th>Grade</th></tr>
+          {% for s,i1,i2,g in [('IOT','18/20','16/20','B+'),('CSY','19/20','18/20','A'),('PSP','20/20','20/20','A+'),('NWA','15/20','17/20','B'),('OSY','14/20','15/20','B'),('GE','20/20','20/20','A+')] %}
+          <tr><td><strong>{{ s }}</strong></td><td>{{ i1 }}</td><td>{{ i2 }}</td>
+          <td><span class="badge {{ 'badge-green' if 'A' in g else 'badge-blue' }}">{{ g }}</span></td></tr>
+          {% endfor %}
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- CHAT -->
+    <div id="tab-chat" class="tab-pane hidden">
+      <div class="page-header"><h1>Messages</h1><p>Communicate with teachers and school</p></div>
+      <div class="chat-wrap">
+        <div class="chat-sidebar">
+          <div class="chat-search"><input placeholder="Search..."></div>
+          <div class="chat-list">
+            <div class="chat-item active" onclick="selChat(this,'Prof. SRK','SR')">
+              <div class="av">SR</div><div><div class="ci-name">Prof. SRK</div><div class="ci-preview">IOT Teacher</div></div>
+            </div>
+            <div class="chat-item" onclick="selChat(this,'Class Teacher','CT')">
+              <div class="av">CT</div><div><div class="ci-name">Class Teacher</div><div class="ci-preview">Prof. PPB</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="chat-main">
+          <div class="chat-header">
+            <div class="av" id="p-chat-av">SR</div>
+            <div><div class="ch-name" id="p-chat-name">Prof. SRK</div><div class="ch-status">● Online</div></div>
+            <div style="margin-left:auto"><button class="btn btn-outline btn-sm" onclick="showTab('meetings',null)"><i class="fa-solid fa-video"></i> PTM Call</button></div>
+          </div>
+          <div class="chat-msgs" id="p-chat-msgs">
+            <div class="msg"><div class="av">SR</div><div><div class="msg-bubble their">Hello, regarding Aarav's attendance in IOT...</div><div class="msg-time">2:30 PM</div></div></div>
+          </div>
+          <div class="chat-input-wrap">
+            <input id="p-chat-inp" placeholder="Type a message..." onkeydown="if(event.key==='Enter')sendParentMsg()">
+            <button class="btn btn-primary btn-sm" onclick="sendParentMsg()"><i class="fa-solid fa-paper-plane"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MEETINGS -->
+    <div id="tab-meetings" class="tab-pane hidden">
+      <div class="page-header"><h1>PTM Calls</h1><p>Parent-Teacher Meeting sessions</p></div>
+      <div class="grid2">
+        <div class="card"><div class="card-title"><i class="fa-solid fa-clock"></i> Scheduled PTMs</div>
+          <div style="border:1px solid #e8eaf2;border-radius:12px;padding:14px;margin-bottom:10px">
+            <div style="font-weight:700;font-size:.88rem">Parent-Teacher Meeting</div>
+            <div style="font-size:.73rem;color:#9ca3af;margin-top:3px">15 Apr 2025 · 5:00 PM · Prof. PPB</div>
+            <button class="btn btn-primary btn-sm mt14"><i class="fa-solid fa-video"></i> Join PTM</button>
+          </div>
+        </div>
+        <div class="card"><div class="card-title"><i class="fa-solid fa-video" style="color:#ef4444"></i> Join Call</div>
+          <div style="background:#0f0f1a;border-radius:12px;padding:14px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+              <div style="background:#052e16;border-radius:10px;padding:20px;text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:var(--c1);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 8px">SR</div><div style="color:#fff;font-size:.75rem">Prof. SRK</div></div>
+              <div style="background:#052e16;border-radius:10px;padding:20px;text-align:center"><div style="width:44px;height:44px;border-radius:50%;background:var(--c2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;margin:0 auto 8px">{{ parent_name[0]|upper }}</div><div style="color:#fff;font-size:.75rem">You</div></div>
+            </div>
+            <div class="call-controls"><div class="cc-btn"><i class="fa-solid fa-microphone"></i></div><div class="cc-btn"><i class="fa-solid fa-video"></i></div><div class="cc-btn danger"><i class="fa-solid fa-phone-slash"></i></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="/static/portal.js"></script>
+<script>
+const PARENT_AV="{{ parent_name[0]|upper }}";
+function selChat(el,name,av){
+  document.querySelectorAll('.chat-item').forEach(i=>i.classList.remove('active'));el.classList.add('active');
+  document.getElementById('p-chat-name').textContent=name;document.getElementById('p-chat-av').textContent=av;
+}
+function sendParentMsg(){
+  const inp=document.getElementById('p-chat-inp');const txt=inp.value.trim();if(!txt)return;
+  const msgs=document.getElementById('p-chat-msgs');
+  const d=document.createElement('div');d.className='msg mine';
+  d.innerHTML=`<div class="av" style="background:var(--c3);color:var(--c1)">${PARENT_AV}</div>
+  <div><div class="msg-bubble mine">${txt}</div><div class="msg-time">Now</div></div>`;
+  msgs.appendChild(d);inp.value='';msgs.scrollTop=msgs.scrollHeight;
+}
+</script>
+{% endblock %}

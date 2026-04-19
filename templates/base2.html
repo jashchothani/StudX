@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudX — Smart Campus Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --font:'Bricolage Grotesque',sans-serif;
+  --mono:'DM Mono',monospace;
+  --radius:14px;--radius-sm:8px;--radius-lg:20px;
+  --trans:0.22s ease;
+  --bg:#f7f8fc;--surface:#fff;--border:#e8eaf2;
+  --text:#1a1d2e;--muted:#6b7280;--faint:#9ca3af;
+}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh}
+a{text-decoration:none;color:inherit}
+button,input,select,textarea{font-family:var(--font)}
+.navbar,.footer{display:none!important}
+
+/* Flash messages */
+.flashes{position:fixed;top:16px;right:16px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.flash{padding:12px 18px;border-radius:12px;font-size:0.85rem;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.1);animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.flash.info{background:#ede9fe;color:#4c1d95;border:1px solid #c4b5fd}
+.flash.success{background:#d1fae5;color:#064e3b;border:1px solid #6ee7b7}
+.flash.error{background:#fee2e2;color:#7f1d1d;border:1px solid #fca5a5}
+.flash.warning{background:#fef3c7;color:#78350f;border:1px solid #fcd34d}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+{% if messages %}
+<div class="flashes">
+  {% for cat, msg in messages %}
+  <div class="flash {{ cat }}">{{ msg }}</div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+<script>
+// Auto-dismiss flash messages
+setTimeout(()=>document.querySelectorAll('.flash').forEach(f=>f.remove()),4000);
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
