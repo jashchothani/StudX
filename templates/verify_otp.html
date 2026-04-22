@@ -271,5 +271,22 @@ document.getElementById('otp-form').addEventListener('submit',function(e){
 });
 
 boxes[0].focus();
+function autoSubmit(){
+  const code = boxes.map(b=>b.value).join('');
+  if(code.length===6){
+    document.getElementById('otp-hidden').value = code;
+
+    const overlay = document.getElementById('success-overlay');
+    overlay.classList.add('show');
+
+    setTimeout(()=>{
+      overlay.style.opacity = "0";
+    },500);
+
+    setTimeout(()=>{
+      document.getElementById('otp-form').submit();
+    },900);
+  }
+}
 </script>
 {% endblock %}
