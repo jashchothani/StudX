@@ -1,3 +1,4 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 import sqlite3
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -695,5 +696,5 @@ def check_session():
         return jsonify({"status": "open", "token": session['token']})
     else:
         return jsonify({"status": "locked"})
-if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
