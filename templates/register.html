@@ -1,301 +1,143 @@
-{% extends 'base2.html' %}
-{% block title %}Create Account{% endblock %}
-{% block extra_head %}
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-    --primary: #4f46e5;
-    --primary-soft: rgba(79, 70, 229, 0.1);
-    --bg-light: #f8fafc;
-    --text-dark: #0f172a;
-    --text-slate: #64748b;
-    --glass: rgba(255, 255, 255, 0.85);
-}
-
-body {
-    margin: 0;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--bg-light);
-    color: var(--text-dark);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow-x: hidden;
-}
-
-/* --- ANIMATED AMBIENCE --- */
-.mesh-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    background: 
-        radial-gradient(at 0% 0%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-        radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.1) 0px, transparent 50%),
-        radial-gradient(at 100% 100%, rgba(79, 70, 229, 0.15) 0px, transparent 50%),
-        radial-gradient(at 0% 100%, rgba(20, 184, 166, 0.1) 0px, transparent 50%);
-    animation: meshShift 20s ease infinite alternate;
-}
-
-@keyframes meshShift {
-    0% { transform: scale(1); }
-    100% { transform: scale(1.1); }
-}
-
-/* --- ACTION COMPONENTS --- */
-.back-btn {
-    position: fixed;
-    top: 30px;
-    left: 30px;
-    padding: 10px 20px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    text-decoration: none;
-    color: var(--text-slate);
-    font-weight: 600;
-    font-size: 0.9rem;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    transition: 0.3s;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    z-index: 100;
-}
-.back-btn:hover {
-    color: var(--primary);
-    border-color: var(--primary);
-    transform: translateX(-5px);
-}
-
-.auth-card {
-    background: var(--glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    border-radius: 32px;
-    padding: 45px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.08);
-    animation: slideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(40px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.brand-header { text-align: center; margin-bottom: 35px; }
-
-.icon-box {
-    width: 60px;
-    height: 60px;
-    background: white;
-    border-radius: 18px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 1.5rem;
-    color: var(--primary);
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.1);
-}
-
-.brand-header h2 { font-size: 1.85rem; font-weight: 800; margin: 0; letter-spacing: -0.5px; }
-.brand-header p { color: var(--text-slate); margin-top: 8px; font-weight: 500; }
-
-/* --- FORM STYLING --- */
-.input-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-}
-
-.input-group { position: relative; margin-bottom: 20px; text-align: left; }
-.input-group label {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    margin-bottom: 8px;
-    color: var(--text-dark);
-    padding-left: 4px;
-}
-
-.input-wrapper { position: relative; }
-.input-wrapper i {
-    position: absolute;
-    left: 16px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--text-slate);
-    font-size: 0.9rem;
-    transition: 0.3s;
-}
-
-.form-input {
-    width: 100%;
-    padding: 14px 16px 14px 45px;
-    background: #ffffff;
-    border: 2px solid #f1f5f9;
-    border-radius: 16px;
-    font-family: inherit;
-    font-size: 0.95rem;
-    color: var(--text-dark);
-    transition: all 0.3s ease;
-    box-sizing: border-box;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: var(--primary);
-    box-shadow: 0 0 0 4px var(--primary-soft);
-    background: #fff;
-}
-
-.form-input:focus + i { color: var(--primary); }
-
-select.form-input { cursor: pointer; appearance: none; }
-
-/* --- BUTTON STYLING --- */
-.submit-btn {
-    width: 100%;
-    padding: 16px;
-    background: var(--primary);
-    color: white;
-    border: none;
-    border-radius: 16px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.4s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-    box-shadow: 0 10px 25px rgba(79, 70, 229, 0.25);
-}
-
-.submit-btn:hover {
-    background: #4338ca;
-    transform: translateY(-2px);
-    box-shadow: 0 15px 30px rgba(79, 70, 229, 0.35);
-}
-
-.footer-text {
-    text-align: center;
-    margin-top: 25px;
-    font-size: 0.9rem;
-    color: var(--text-slate);
-    font-weight: 500;
-}
-
-.footer-text a {
-    color: var(--primary);
-    text-decoration: none;
-    font-weight: 700;
-    transition: 0.2s;
-}
-
-.footer-text a:hover { text-decoration: underline; }
-
-/* --- RESPONSIVE --- */
-@media (max-width: 600px) {
-    .auth-card { padding: 30px 20px; border-radius: 0; height: 100vh; display: flex; flex-direction: column; justify-content: center; }
-    .back-btn { top: 15px; left: 15px; }
-}
-</style>
-{% endblock %}
-
+{% extends 'base.html' %}
 {% block content %}
-<div class="mesh-bg"></div>
+<style>
+    /* Full Page Takeover Override */
+    body { margin: 0; overflow: hidden; background-color: #8b5cf6; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .navbar, .footer { display: none !important; }
 
-<a href="/login" class="back-btn">
-    <i class="fa-solid fa-arrow-left-long"></i> Back to Login
-</a>
+    /* --- CHILL TWILIGHT BACKGROUND --- */
+    .sky-bg {
+        position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; overflow: hidden; z-index: 0;
+        background: linear-gradient(180deg, #2e1065 0%, #7c3aed 50%, #f472b6 100%);
+    }
 
-<div class="auth-card">
-    <div class="brand-header">
-        <div class="icon-box">
-            <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <h2>Create Account</h2>
-        <p>Join the StudX academic community</p>
-    </div>
+    .stars {
+        position: absolute; width: 100%; height: 100%;
+        background-image: radial-gradient(3px 3px at 20vw 30vh, #ffffff, rgba(0,0,0,0)), radial-gradient(3px 3px at 80vw 40vh, #ffffff, rgba(0,0,0,0));
+        background-size: 100vw 100vh; animation: twinkle 4s infinite alternate; opacity: 0.6;
+    }
+    @keyframes twinkle { 0% { opacity: 0.3; } 100% { opacity: 0.8; } }
 
-    <form method="POST" action="/register">
-        <div class="input-group">
-            <label>Full Name</label>
-            <div class="input-wrapper">
-                <i class="fa-solid fa-user"></i>
-                <input type="text" name="name" class="form-input" placeholder="Enter your full name" required autofocus>
-            </div>
-        </div>
+    /* Fluffy Clouds at the bottom */
+    .clouds-container { position: absolute; bottom: -50px; left: 0; width: 100%; height: 250px; z-index: 3; }
+    .cloud { position: absolute; background: #ffffff; border-radius: 100px; }
+    .cloud::before, .cloud::after { content: ''; position: absolute; background: #ffffff; border-radius: 50%; }
+    .cloud-1 { width: 300px; height: 100px; bottom: 30px; left: -50px; opacity: 0.9; }
+    .cloud-1::before { width: 150px; height: 150px; top: -70px; left: 40px; }
+    .cloud-1::after { width: 100px; height: 100px; top: -30px; right: 40px; }
+    .cloud-2 { width: 400px; height: 120px; bottom: 20px; right: -100px; opacity: 0.8; }
+    .cloud-2::before { width: 180px; height: 180px; top: -80px; left: 50px; }
+    .cloud-2::after { width: 140px; height: 140px; top: -50px; right: 70px; }
 
-        <div class="input-group">
-            <label>Email Address</label>
-            <div class="input-wrapper">
-                <i class="fa-solid fa-envelope"></i>
-                <input type="email" name="email" class="form-input" placeholder="name@university.edu" required>
-            </div>
-        </div>
+    /* --- PLAYFUL CENTERED LAYOUT --- */
+    .login-wrapper { position: relative; z-index: 10; display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
 
-        <div class="input-group">
-            <label>Password</label>
-            <div class="input-wrapper">
-                <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" class="form-input" placeholder="Create a strong password" required>
-            </div>
-        </div>
+    .back-btn {
+        position: absolute; top: 40px; left: 40px; color: #7c3aed; background: #ffffff;
+        padding: 12px 24px; border-radius: 30px; text-decoration: none; font-weight: 700;
+        display: flex; align-items: center; gap: 8px; transition: 0.3s; z-index: 20; box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+    }
+    .back-btn:hover { color: #db2777; transform: scale(1.05) rotate(-3deg); }
 
-        <div class="input-group">
-            <label>Portal Role</label>
-            <div class="input-wrapper">
-                <i class="fa-solid fa-id-badge"></i>
-                <select name="role" class="form-input" required>
-                    <option value="" disabled selected>Identify your role</option>
-                    <option value="Student">🎓 Student</option>
-                    <option value="Parent">👨‍👩‍👧 Parent</option>
-                    <option value="Faculty">👨‍🏫 Faculty</option>
-                    <option value="HOD">🏫 Department Head (HOD)</option>
-                </select>
-            </div>
-        </div>
+    /* Soft, friendly card */
+    .chill-card {
+        background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(20px); border: 4px solid #ffffff;
+        border-radius: 40px; padding: 40px; width: 100%; max-width: 450px; text-align: center;
+        box-shadow: 0 30px 60px rgba(46, 16, 101, 0.3); animation: popIn 0.8s forwards; transform: scale(0.8); opacity: 0;
+    }
+    @keyframes popIn { to { opacity: 1; transform: scale(1); } }
 
-        <button type="submit" class="submit-btn">
-            Create My Account
-            <i class="fa-solid fa-arrow-right"></i>
-        </button>
-    </form>
+    .brand-header { margin-bottom: 25px; }
+    .brand-header-icon { font-size: 2.5rem; color: #f472b6; margin-bottom: 10px; display: inline-block; animation: gentleBounce 2s infinite ease-in-out; }
+    .brand-header h2 { color: #1e1b4b; font-size: 2rem; margin-bottom: 5px; font-weight: 800; letter-spacing: -1px; }
+    .brand-header p { color: #6b7280; font-size: 0.95rem; font-weight: 600; }
+    @keyframes gentleBounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
 
-    <p class="footer-text">
-        Already have an account? <a href="/login">Log in here</a>
-    </p>
+    /* Flash Messages */
+    .flash-msg { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 12px; font-size: 0.9rem; font-weight: 700; margin-bottom: 20px; border: 2px solid #fecaca; }
+
+    /* Soft Bubbly Inputs */
+    .input-group { position: relative; margin-bottom: 18px; }
+    .input-group i { position: absolute; left: 20px; top: 50%; transform: translateY(-50%); color: #a78bfa; transition: 0.3s; z-index: 2; }
+    .input-group input, .input-group select {
+        width: 100%; padding: 16px 16px 16px 50px; background: #f5f3ff; border: 2px solid transparent;
+        border-radius: 20px; color: #1e1b4b; font-size: 1rem; font-weight: 600; outline: none; transition: 0.3s; box-sizing: border-box; cursor: pointer;
+    }
+    .input-group input::placeholder { color: #8b5cf6; font-weight: 500; opacity: 0.6; }
+    .input-group input:focus, .input-group select:focus { background: #ffffff; border-color: #7c3aed; box-shadow: 0 8px 20px rgba(124, 58, 237, 0.15); transform: translateY(-2px); }
+    .input-group input:focus + i, .input-group select:focus + i { color: #7c3aed; }
+
+    /* Bouncy Button */
+    .submit-btn {
+        width: 100%; padding: 18px; background: linear-gradient(135deg, #7c3aed 0%, #f472b6 100%);
+        border: none; border-radius: 24px; color: white; font-size: 1.1rem; font-weight: 800; cursor: pointer;
+        transition: 0.3s; box-shadow: 0 10px 25px rgba(124, 58, 237, 0.4); margin-top: 10px;
+    }
+    .submit-btn:hover { transform: translateY(-5px) scale(1.03); box-shadow: 0 15px 35px rgba(244, 114, 182, 0.5); }
+    
+    .signup-link { margin-top: 20px; color: #6b7280; font-size: 0.95rem; font-weight: 600; text-align: center; }
+    .signup-link a { color: #7c3aed; font-weight: 800; text-decoration: none; margin-left: 5px; transition: 0.3s;}
+    .signup-link a:hover { color: #f472b6; }
+</style>
+
+<div class="sky-bg"><div class="stars"></div></div>
+<div class="clouds-container">
+    <div class="cloud cloud-1"></div><div class="cloud cloud-2"></div>
 </div>
 
-<script>
-    // Smooth interaction: Elements appear one by one
-    const inputs = document.querySelectorAll('.input-group');
-    inputs.forEach((input, index) => {
-        input.style.opacity = "0";
-        input.style.transform = "translateY(10px)";
-        setTimeout(() => {
-            input.style.transition = "all 0.5s ease";
-            input.style.opacity = "1";
-            input.style.transform = "translateY(0)";
-        }, 200 + (index * 100));
-    });
+<a href="/login" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Login</a>
 
-    // Form button loading state
-    document.querySelector('form').addEventListener('submit', function(e) {
-        const btn = document.querySelector('.submit-btn');
-        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processing...';
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.7';
-    });
-</script>
+<div class="login-wrapper">
+    <div class="chill-card">
+        
+        <div class="brand-header">
+            <div class="brand-header-icon"><i class="fa-solid fa-user-plus"></i></div>
+            <h2>Join StudX</h2>
+            <p>Create your account to get started.</p>
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash-msg">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST" action="/register">
+            <div class="input-group">
+                <i class="fa-solid fa-user"></i>
+                <input type="text" name="name" placeholder="Full Name" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-envelope"></i>
+                <input type="email" name="email" placeholder="Email Address" required>
+            </div>
+            
+            <div class="input-group">
+                <i class="fa-solid fa-lock"></i>
+                <input type="password" name="password" placeholder="Create Password" required>
+            </div>
+
+            <div class="input-group">
+                <i class="fa-solid fa-id-badge"></i>
+                <select name="role" required>
+                    <option value="" disabled selected>Select Your Role</option>
+                    <option value="Student">Student</option>
+                    <option value="Parent">Parent</option>
+                    <option value="Faculty">Faculty</option>
+                    <option value="HOD">HOD (Head of Dept)</option>
+                </select>
+            </div>
+
+            <button type="submit" class="submit-btn">Request Access <i class="fa-solid fa-paper-plane" style="margin-left: 5px;"></i></button>
+        </form>
+
+        <div class="signup-link">
+            Already have an account? <a href="/login">Log in here</a>
+        </div>
+        
+    </div>
+</div>
 {% endblock %}
