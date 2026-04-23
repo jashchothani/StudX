@@ -1,7 +1,68 @@
 {% extends 'base2.html' %}
 {% block extra_head %}
-<link rel="stylesheet" href="/static/portal.css">
-<style>:root{--c1:#6d28d9;--c2:#8b5cf6;--c3:#ede9fe;--c4:#ddd6fe;--ctext:#4c1d95;--sidebar:#1e1b4b;--accent:#a78bfa}</style>
+<style>
+:root{
+  --c1:#7c3aed;
+  --c2:#a855f7;
+  --c3:#faf5ff;
+  --c4:#ede9fe;
+  --ctext:#3b0764;
+  --sidebar:#2e1065;
+  --accent:#c084fc;
+}
+
+/* Background */
+body{
+  background: linear-gradient(135deg,#f5f3ff 0%,#ede9fe 100%);
+}
+
+/* Sidebar */
+.sidebar{
+  background: linear-gradient(180deg,var(--sidebar),#312e81);
+  box-shadow: 6px 0 24px rgba(0,0,0,0.15);
+}
+
+/* Nav items */
+.nav-item{
+  border-radius:12px;
+  transition:0.25s;
+}
+.nav-item:hover{
+  background:rgba(255,255,255,0.1);
+  transform:translateX(4px);
+}
+.nav-item.active{
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  color:#fff;
+}
+
+/* Cards */
+.card,.stat-chip{
+  border-radius:18px;
+  background:rgba(255,255,255,0.95);
+  box-shadow:0 10px 25px rgba(0,0,0,0.08);
+}
+
+/* Buttons */
+.btn-primary{
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  border:none;
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+}
+
+/* Inputs */
+input, .form-control{
+  border-radius:12px;
+  border:1px solid rgba(124,58,237,0.2);
+}
+input:focus{
+  border-color:var(--c1);
+  box-shadow:0 0 0 3px rgba(124,58,237,0.15);
+}
+</style>
+
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 {% endblock %}
