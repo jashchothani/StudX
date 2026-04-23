@@ -1876,664 +1876,250 @@ tbody tr:last-child td { border-bottom: none; }
 
 <script>
 // ═══════════════════════════════════════
-// DATA
+// GLOBAL STATE & INITIALIZATION
 // ═══════════════════════════════════════
-const USERS = [
-  {id:1, name:'Aarav Patel',   email:'aarav.p@gmail.com',                role:'Student', sem:'Sem-4', div:'A', status:'approved', joined:'Jan 12, 2025'},
-  {id:2, name:'Sneha Joshi',   email:'sneha.j@gmail.com',                role:'Student', sem:'Sem-3', div:'B', status:'approved', joined:'Jan 15, 2025'},
-  {id:3, name:'Dev Sharma',    email:'dev.s@svkmmumbai.onmicrosoft.com', role:'Student', sem:'Sem-5', div:'A', status:'approved', joined:'Jan 08, 2025'},
-  {id:4, name:'Meera Kapoor',  email:'meera.k@gmail.com',                role:'Student', sem:'Sem-2', div:'C', status:'approved', joined:'Jan 20, 2025'},
-  {id:5, name:'Raj Malhotra',  email:'raj.m@gmail.com',                  role:'Student', sem:'Sem-6', div:'A', status:'approved', joined:'Dec 05, 2024'},
-  {id:6, name:'Prof. A. Singh',email:'a.singh@svkmmumbai.onmicrosoft.com',role:'Teacher',sem:'—',     div:'—', status:'approved', joined:'Sep 01, 2024'},
-  {id:7, name:'Prof. R. Nair', email:'r.nair@svkmmumbai.onmicrosoft.com', role:'Teacher',sem:'—',     div:'—', status:'approved', joined:'Sep 01, 2024'},
-  {id:8, name:'Vinod Kapoor',  email:'vinod.k@gmail.com',                role:'Parent',  sem:'—',     div:'—', status:'approved', joined:'Jan 22, 2025'},
-];
+let USERS = [];
+let ASSIGNMENTS = [];
+let MEETINGS = [];
 
-const ASSIGNMENTS = [
-  {id:1, title:'Matrix Operations & Determinants', subject:'Mathematics',    due:'2025-04-30', sem:'Sem-4', submissions:28, status:'active'},
-  {id:2, title:'Kirchhoff\'s Laws Lab Report',     subject:'Electronics',    due:'2025-04-25', sem:'Sem-3', submissions:35, status:'active'},
-  {id:3, title:'Python OOP Project',               subject:'Programming',    due:'2025-05-05', sem:'Sem-4', submissions:12, status:'active'},
-  {id:4, title:'Thermodynamics Assignment',        subject:'Physics',        due:'2025-04-20', sem:'Sem-2', submissions:40, status:'closed'},
-  {id:5, title:'Engineering Drawing Sheet 5',      subject:'Drawing',        due:'2025-05-10', sem:'Sem-1', submissions: 5, status:'active'},
-];
-
-const MEETINGS = [
-  {id:1, title:'Parent-Teacher Conference',       date:'28', mon:'APR', time:'10:00 AM', aud:'Parents',  host:'Admin'},
-  {id:2, title:'Semester Review — Sem 4',         date:'02', mon:'MAY', time:'02:00 PM', aud:'Faculty',  host:'Admin'},
-  {id:3, title:'Anti-Ragging Committee Meeting',  date:'05', mon:'MAY', time:'11:00 AM', aud:'All',      host:'Admin'},
-  {id:4, title:'Exam Schedule Discussion',         date:'10', mon:'MAY', time:'09:30 AM', aud:'Faculty',  host:'Admin'},
-];
-
-const SEM_DATA = [
-  {sem:'Sem 1', pct:88}, {sem:'Sem 2', pct:79}, {sem:'Sem 3', pct:82},
-  {sem:'Sem 4', pct:83}, {sem:'Sem 5', pct:91}, {sem:'Sem 6', pct:75},
-];
-
-const AT_RISK = [
-  {name:'Dev Sharma',   pct:64, sem:'Sem-5', sessions:28, present:18},
-  {name:'Rohan Patel',  pct:71, sem:'Sem-4', sessions:30, present:21},
-  {name:'Kiran Desai',  pct:68, sem:'Sem-3', sessions:25, present:17},
-  {name:'Lata Verma',   pct:72, sem:'Sem-2', sessions:22, present:16},
-  {name:'Suresh Nair',  pct:73, sem:'Sem-6', sessions:35, present:25},
-];
-
-const ACTIVITIES = [
-  {text:'Rohan Mehta registered as Student · Sem-4', time:'2 min ago', color:'#ef4444'},
-  {text:'Prof. Singh started attendance session for Electronics', time:'15 min ago', color:'#10b981'},
-  {text:'34 students marked present in Sem-3 Physics', time:'32 min ago', color:'#3b82f6'},
-  {text:'Dev Sharma received low attendance alert', time:'1 hr ago', color:'#f59e0b'},
-  {text:'Assignment "Matrix Operations" created by Prof. Nair', time:'2 hrs ago', color:'#8b5cf6'},
-  {text:'Weekly email reports sent to 18 students', time:'Yesterday', color:'#ef4444'},
-];
-
-const EMAIL_LOG = [
-  {student:'Dev Sharma',  email:'dev.s@gmail.com', subject:'Low Attendance Alert',  time:'Today, 09:00 AM', status:'sent'},
-  {student:'Rohan Patel', email:'rohan.p@gmail.com',subject:'Low Attendance Alert',  time:'Today, 09:01 AM', status:'sent'},
-  {student:'Kiran Desai', email:'kiran.d@gmail.com',subject:'Weekly Attendance Alert',time:'Mon, 09:00 AM',  status:'sent'},
-  {student:'Lata Verma',  email:'lata.v@gmail.com', subject:'Weekly Attendance Alert',time:'Mon, 09:01 AM',  status:'sent'},
-];
-
-const WEEKLY_DATA = [
-  {day:'Mon', pct:86}, {day:'Tue', pct:79}, {day:'Wed', pct:83},
-  {day:'Thu', pct:91}, {day:'Fri', pct:74}, {day:'Sat', pct:45},
-];
-
-const AI_RESPONSES = {
-  'Students at risk of debarment': '📊 **Debarment Risk Analysis**\n\nI\'ve analysed all 1,240 student records. Currently **23 students (1.85%)** are below the 75% mandatory threshold:\n\n🔴 **Critical (Below 65%)**\n• Dev Sharma — 64% (Sem-5)\n• Kiran Desai — 68% (Sem-3)\n\n🟡 **Warning (65–74%)**\n• Rohan Patel — 71% (Sem-4)\n• Lata Verma — 72% (Sem-2)\n• Suresh Nair — 73% (Sem-6)\n• + 18 more students\n\n**Recommended Actions:**\n1. Send immediate alerts to all 23 students\n2. Schedule counselling for critical cases\n3. Notify parents of students below 68%',
-  'Attendance trend analysis': '📈 **Monthly Attendance Trends**\n\nCampus average has improved by **3.2% since February 2025**:\n\n• **March 2025** — 83.4% average (↑ 3.2%)\n• **February 2025** — 80.2% average\n• **January 2025** — 78.8% average\n\n**Top Semester:** Sem-5 at 91.2%\n**Needs Attention:** Sem-6 at 75.4% (just above threshold)\n\n**Day-wise Pattern:**\n• Monday & Thursday show highest attendance (88–91%)\n• Saturday drops significantly to 45%\n• Friday afternoon sessions have 12% lower attendance\n\n**Insight:** Consider rescheduling Friday 4PM labs to mornings.',
-  'Faculty workload summary': '👩‍🏫 **Faculty Load Analysis — April 2025**\n\n**Total Faculty:** 48 active members\n\n**High Load (>20 hrs/week):**\n• Prof. A. Singh — 24 hrs (Electronics + Mathematics)\n• Prof. R. Nair — 22 hrs (Physics + Chemistry)\n\n**Optimal Load (14–20 hrs):**\n• 35 faculty members in this range\n\n**Light Load (<14 hrs):**\n• 8 faculty members (recently joined)\n\n**Attendance Sessions Created This Month:**\n• 284 sessions total\n• Average 5.9 sessions per faculty\n\n**Recommendation:** Redistribute 2 subjects from Prof. Singh to the 3 underloaded faculty joining next semester.',
-  'Generate weekly report summary': '📄 **Weekly Report — Week 16, 2025**\n\n**Attendance Summary:**\n• Campus average: 83.4% (↑ from last week\'s 81.2%)\n• Sessions conducted: 84\n• Total student-attendance records: 6,720\n\n**Alerts Sent:** 18 low-attendance emails dispatched Monday 9AM\n\n**Assignments:**\n• 5 active assignments across 4 subjects\n• 120 submissions received this week\n• Average grade: B+ (78/100)\n\n**New Registrations:** 3 pending approvals (1 student, 1 teacher, 1 parent)\n\n**System Health:** All services operational. DB size: 42MB. Uptime: 99.8%\n\nThis report has been formatted for forwarding to the Principal\'s office.',
-  'Top performing students this semester': '🏆 **Top Performers — Semester 2024–25**\n\nBased on attendance + assignment grades:\n\n**🥇 Rank 1** — Aarav Patel (Sem-4, Div A)\n• Attendance: 97% | Avg Grade: 92/100\n\n**🥈 Rank 2** — Meera Kapoor (Sem-2, Div C)\n• Attendance: 95% | Avg Grade: 89/100\n\n**🥉 Rank 3** — Raj Malhotra (Sem-6, Div A)\n• Attendance: 94% | Avg Grade: 87/100\n\n**Sem-5 Toppers:** Avg attendance 91.2% — highest on campus\n\n**Insight:** Students with >90% attendance score an average of 14.3% higher on assignments. Consider using this data to motivate at-risk students.',
-};
-
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  animateCounters();
-  renderSemAttendance();
-  renderActivity();
-  renderBarChart();
-  renderUsersTable(USERS);
-  renderAtRisk();
-  renderSessionHistory();
-  renderAssignments();
-  renderMeetings();
-  renderEmailLog();
-  renderSemesterPerf();
-  renderMonthlySummary();
-
-  // Set default due date
-  const today = new Date();
-  today.setDate(today.getDate() + 7);
-  const inp = document.getElementById('asgn-due');
-  if (inp) inp.value = today.toISOString().split('T')[0];
-
-  // Live activity feed
-  setInterval(addLiveActivity, 18000);
+    refreshAllData();
+    // Live activity polling
+    setInterval(fetchRecentLogs, 30000);
 });
 
-// ═══════════════════════════════════════
-// COUNTER ANIMATION
-// ═══════════════════════════════════════
-function animateCounters() {
-  document.querySelectorAll('[data-target]').forEach(el => {
-    const target = parseInt(el.dataset.target);
-    let current = 0;
-    const step = Math.ceil(target / 60);
-    const timer = setInterval(() => {
-      current = Math.min(current + step, target);
-      el.textContent = current.toLocaleString();
-      if (current >= target) clearInterval(timer);
-    }, 20);
-  });
+async function refreshAllData() {
+    await Promise.all([
+        fetchDashboardStats(),
+        fetchUsers(),
+        fetchAssignments(),
+        fetchMeetings(),
+        fetchEmailLogs(),
+        fetchRecentLogs()
+    ]);
+    renderSemAttendance(); // Based on fetched user data
 }
 
 // ═══════════════════════════════════════
-// TAB NAVIGATION
+// FETCH DATA FROM API
 // ═══════════════════════════════════════
-function showTab(name, el) {
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + name).classList.add('active');
-  if (el) el.classList.add('active');
 
-  // Close mobile sidebar
-  if (window.innerWidth <= 768) toggleMobileSidebar(false);
+async function fetchDashboardStats() {
+    // Note: You can create a specific /api/admin/stats endpoint in app.py 
+    // for efficiency, but here we derive from the users list
+    const studentCount = USERS.filter(u => u.role === 'Student').length;
+    const facultyCount = USERS.filter(u => u.role === 'Teacher').length;
+    
+    document.getElementById('sc1').textContent = studentCount;
+    document.getElementById('sc2').textContent = facultyCount;
+}
+
+async function fetchUsers() {
+    // This uses a logic that maps your DB structure to the UI
+    try {
+        const response = await fetch('/admin'); // In a real app, use a JSON API endpoint
+        // For this implementation, we assume you add an /api/admin/users route to app.py
+        // Or we parse the data already passed to the template via Jinja2
+        // Since we are strictly JS here, I'll use the fetch pattern:
+        const res = await fetch('/api/admin/users_list'); 
+        const data = await res.json();
+        USERS = data.users;
+        renderUsersTable(USERS);
+    } catch (e) { console.error("User fetch failed", e); }
+}
+
+async function fetchAssignments() {
+    const res = await fetch('/api/assignments');
+    const data = await res.json();
+    ASSIGNMENTS = data.assignments;
+    renderAssignments();
+}
+
+async function fetchMeetings() {
+    const res = await fetch('/api/meetings');
+    const data = await res.json();
+    MEETINGS = data.meetings;
+    renderMeetings();
+}
+
+async function fetchEmailLogs() {
+    // You'll need to create this simple route in app.py to return email_log table
+    const res = await fetch('/api/email_logs'); 
+    const data = await res.json();
+    renderEmailLog(data.logs);
+}
+
+async function fetchRecentLogs() {
+    const res = await fetch('/api/attendance_log');
+    const data = await res.json();
+    renderActivity(data.students);
 }
 
 // ═══════════════════════════════════════
-// MOBILE SIDEBAR
+// RENDER FUNCTIONS (DYNAMIC)
 // ═══════════════════════════════════════
-function toggleMobileSidebar(forceClose) {
-  const sidebar = document.getElementById('sidebar');
-  const overlay = document.getElementById('mob-overlay');
-  const isOpen  = sidebar.classList.contains('open');
-  if (forceClose === false || isOpen) {
-    sidebar.classList.remove('open');
-    overlay.classList.remove('open');
-  } else {
-    sidebar.classList.add('open');
-    overlay.classList.add('open');
-  }
+
+function renderUsersTable(users) {
+    const tbody = document.getElementById('users-tbody');
+    tbody.innerHTML = users.map(u => `
+        <tr data-role="${u.role.toLowerCase()}" data-name="${u.name.toLowerCase()}">
+            <td><div class="td-name">
+                <div class="mini-av">${u.name[0]}</div>
+                <span class="td-strong">${u.name}</span>
+            </div></td>
+            <td>${u.email}</td>
+            <td><span class="badge" style="background:var(--blue)20;color:var(--blue)">${u.role}</span></td>
+            <td>${u.semester || '—'}</td>
+            <td><span class="badge ${u.status === 'approved' ? 'badge-green' : 'badge-amber'}">${u.status}</span></td>
+            <td>${u.joined_at || '—'}</td>
+            <td>
+                <div style="display:flex;gap:6px">
+                    <button class="btn btn-danger btn-sm" onclick="handleDeleteUser('${u.role.toLowerCase()}', ${u.id})">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
+
+function renderAssignments() {
+    const tbody = document.getElementById('assignments-tbody');
+    tbody.innerHTML = ASSIGNMENTS.map(a => `
+        <tr>
+            <td class="td-strong">${a.title}</td>
+            <td><span class="badge badge-blue">${a.subject}</span></td>
+            <td>${a.due_date}</td>
+            <td>${a.semester}</td>
+            <td>${a.max_marks} Marks</td>
+            <td><span class="badge badge-green">Active</span></td>
+        </tr>
+    `).join('');
+}
+
+function renderActivity(logs) {
+    const el = document.getElementById('activity-feed');
+    el.innerHTML = logs.slice(0, 6).map(l => `
+        <div class="activity-item">
+            <div class="activity-dot" style="background:var(--green)"></div>
+            <div>
+                <div class="activity-text"><strong>${l.student_name}</strong> marked present in ${l.subject}</div>
+                <div class="activity-time">${l.timestamp}</div>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ═══════════════════════════════════════
-// MODALS
+// AI TAB: REAL GEMINI INTEGRATION
 // ═══════════════════════════════════════
-function openModal(id)  { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-// Close on backdrop click
-document.querySelectorAll('.modal-overlay').forEach(m => {
-  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
-});
+async function aiSend(preset) {
+    const input = document.getElementById('ai-input');
+    const text = preset || input.value.trim();
+    if (!text) return;
+    input.value = '';
+
+    const msgs = document.getElementById('ai-messages');
+    appendMessage('user', text);
+
+    const typing = appendMessage('ai', '<div class="typing-dots"><span></span><span></span><span></span></div>');
+
+    try {
+        const response = await fetch('/api/ai_tutor', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                question: `Context: I am the Admin. User Database has ${USERS.length} users. ${ASSIGNMENTS.length} assignments exist. Question: ${text}`,
+                history: [] 
+            })
+        });
+        const data = await response.json();
+        typing.innerHTML = data.answer.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    } catch (e) {
+        typing.innerHTML = "Sorry, I couldn't connect to the AI engine.";
+    }
+    msgs.scrollTop = msgs.scrollHeight;
+}
+
+function appendMessage(role, content) {
+    const msgs = document.getElementById('ai-messages');
+    const div = document.createElement('div');
+    div.className = role === 'user' ? 'msg-user' : 'msg-ai';
+    div.innerHTML = content;
+    msgs.appendChild(div);
+    return div;
+}
 
 // ═══════════════════════════════════════
-// TOASTS
+// ACTIONS (POST TO BACKEND)
+// ═══════════════════════════════════════
+
+async function addUser() {
+    const payload = {
+        name: document.getElementById('new-name').value,
+        email: document.getElementById('new-email').value,
+        role: document.getElementById('new-role').value,
+        semester: document.getElementById('new-sem').value,
+        division: document.getElementById('new-div').value
+    };
+
+    const res = await fetch('/register', { // Using your existing register route
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(payload)
+    });
+
+    if (res.ok) {
+        toast('User created and pending approval');
+        closeModal('add-user-modal');
+        refreshAllData();
+    }
+}
+
+async function sendWeeklyReports() {
+    const btn = document.getElementById('send-reports-btn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner spin"></i> Processing...';
+    
+    const res = await fetch('/api/send_weekly_reports');
+    const data = await res.json();
+    
+    toast(`Success: ${data.emails_sent} alerts sent!`);
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Weekly Reports Now';
+    fetchEmailLogs();
+}
+
+async function handleDeleteUser(type, id) {
+    if(confirm("Permanently delete this user?")) {
+        await fetch(`/admin/delete/${type}/${id}`);
+        toast("User deleted", "error");
+        refreshAllData();
+    }
+}
+
+// ═══════════════════════════════════════
+// UTILS
 // ═══════════════════════════════════════
 function toast(msg, type = 'success') {
-  const icons = { success:'fa-check', error:'fa-times', info:'fa-info' };
-  const t = document.createElement('div');
-  t.className = `toast toast-${type}`;
-  t.innerHTML = `<div class="toast-icon"><i class="fa-solid ${icons[type]}"></i></div><div>${msg}</div>`;
-  document.getElementById('toast-container').appendChild(t);
-  setTimeout(() => { t.classList.add('exit'); setTimeout(() => t.remove(), 300); }, 3500);
+    const t = document.createElement('div');
+    t.className = `toast toast-${type}`;
+    t.innerHTML = `<div>${msg}</div>`;
+    document.getElementById('toast-container').appendChild(t);
+    setTimeout(() => t.remove(), 3000);
 }
 
-// ═══════════════════════════════════════
-// RENDER: SEMESTER ATTENDANCE
-// ═══════════════════════════════════════
-function renderSemAttendance() {
-  const el = document.getElementById('sem-attendance');
-  el.innerHTML = SEM_DATA.map(s => {
-    const cls = s.pct >= 85 ? 'pf-green' : s.pct >= 75 ? 'pf-amber' : 'pf-red';
-    const color = s.pct >= 85 ? 'var(--green)' : s.pct >= 75 ? 'var(--amber)' : 'var(--red)';
-    return `<div class="progress-row">
-      <div class="progress-label">${s.sem}</div>
-      <div class="progress-track">
-        <div class="progress-fill ${cls}" style="width:0%" data-pct="${s.pct}%"></div>
-      </div>
-      <div class="progress-pct" style="color:${color}">${s.pct}%</div>
-    </div>`;
-  }).join('');
-  // Animate bars
-  setTimeout(() => {
-    el.querySelectorAll('.progress-fill').forEach(b => b.style.width = b.dataset.pct);
-  }, 200);
+function showTab(name, el) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    el.classList.add('active');
 }
 
-// ═══════════════════════════════════════
-// RENDER: ACTIVITY FEED
-// ═══════════════════════════════════════
-function renderActivity() {
-  const el = document.getElementById('activity-feed');
-  el.innerHTML = ACTIVITIES.map(a => `
-    <div class="activity-item">
-      <div class="activity-dot" style="background:${a.color}"></div>
-      <div>
-        <div class="activity-text">${a.text}</div>
-        <div class="activity-time">${a.time}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function addLiveActivity() {
-  const msgs = [
-    'Student scanned QR code in Electronics session',
-    'New assignment submission from Aarav Patel',
-    'Attendance session closed by Prof. Singh',
-  ];
-  const colors = ['#ef4444','#3b82f6','#10b981'];
-  const r = Math.floor(Math.random() * msgs.length);
-  ACTIVITIES.unshift({ text: msgs[r], time: 'Just now', color: colors[r] });
-  ACTIVITIES.pop();
-  renderActivity();
-}
-
-// ═══════════════════════════════════════
-// RENDER: BAR CHART
-// ═══════════════════════════════════════
-function renderBarChart() {
-  const el = document.getElementById('bar-chart');
-  el.innerHTML = WEEKLY_DATA.map(d => `
-    <div class="bar-col">
-      <div class="bar-val">${d.pct}%</div>
-      <div class="bar-fill" style="height:0%" data-h="${d.pct}%"></div>
-      <div class="bar-label">${d.day}</div>
-    </div>
-  `).join('');
-  setTimeout(() => {
-    el.querySelectorAll('.bar-fill').forEach(b => b.style.height = b.dataset.h);
-  }, 300);
-}
-
-// ═══════════════════════════════════════
-// RENDER: USERS TABLE
-// ═══════════════════════════════════════
-function renderUsersTable(users) {
-  const tbody = document.getElementById('users-tbody');
-  tbody.innerHTML = users.map(u => {
-    const roleColor = {Student:'var(--blue)',Teacher:'var(--green)',Parent:'var(--purple)'}[u.role];
-    const statusBadge = u.status === 'approved' ? 'badge-green' : 'badge-amber';
-    return `<tr data-role="${u.role.toLowerCase()}" data-name="${u.name.toLowerCase()}">
-      <td><div class="td-name">
-        <div class="mini-av">${u.name[0]}</div>
-        <span class="td-strong">${u.name}</span>
-      </div></td>
-      <td>${u.email}</td>
-      <td><span class="badge" style="background:${roleColor}20;color:${roleColor}">${u.role}</span></td>
-      <td>${u.sem}</td>
-      <td><span class="badge ${statusBadge}">${u.status}</span></td>
-      <td>${u.joined}</td>
-      <td>
-        <div style="display:flex;gap:6px">
-          <button class="btn btn-ghost btn-sm" title="Edit"><i class="fa-solid fa-pen"></i></button>
-          <button class="btn btn-danger btn-sm" onclick="deleteUserRow(this, '${u.name}')" title="Delete"><i class="fa-solid fa-trash"></i></button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-
-function filterUsers(type) {
-  document.querySelectorAll('[id^="uf-"]').forEach(b => b.style.borderColor = 'var(--border)');
-  const btn = document.getElementById('uf-' + type);
-  if (btn) btn.style.borderColor = 'var(--red)';
-
-  document.querySelectorAll('#users-tbody tr').forEach(tr => {
-    tr.style.display = (type === 'all' || tr.dataset.role === type) ? '' : 'none';
-  });
-}
-
-function searchUsers(q) {
-  const val = q.toLowerCase();
-  document.querySelectorAll('#users-tbody tr').forEach(tr => {
-    tr.style.display = tr.dataset.name.includes(val) ? '' : 'none';
-  });
-}
-
-function deleteUserRow(btn, name) {
-  const row = btn.closest('tr');
-  row.style.opacity = '0';
-  row.style.transition = 'opacity 0.3s';
-  setTimeout(() => row.remove(), 300);
-  toast(`${name} removed from system`, 'error');
-}
-
-// ═══════════════════════════════════════
-// RENDER: AT-RISK STUDENTS
-// ═══════════════════════════════════════
-function renderAtRisk() {
-  const el = document.getElementById('at-risk-list');
-  el.innerHTML = AT_RISK.map(s => {
-    const color = s.pct < 65 ? 'var(--red)' : s.pct < 70 ? 'var(--amber)' : 'var(--txt2)';
-    return `<div class="att-bar">
-      <div class="att-top">
-        <div><div class="att-name">${s.name}</div><div class="text-muted">${s.sem} · ${s.present}/${s.sessions} sessions</div></div>
-        <div class="att-pct" style="color:${color}">${s.pct}%</div>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill pf-red" style="width:0%" data-pct="${s.pct}%"></div>
-      </div>
-    </div>`;
-  }).join('');
-  setTimeout(() => {
-    el.querySelectorAll('.progress-fill').forEach(b => b.style.width = b.dataset.pct);
-  }, 200);
-}
-
-function loadAttendanceLogs() {
-  toast('Attendance logs refreshed', 'info');
-  renderAtRisk();
-}
-
-// ═══════════════════════════════════════
-// RENDER: SESSION HISTORY
-// ═══════════════════════════════════════
-function renderSessionHistory() {
-  const sessions = [
-    {subject:'Electronics', teacher:'Prof. A. Singh', time:'09:00–09:50', sem:'Sem-3', present:38, total:45, closed:true},
-    {subject:'Mathematics', teacher:'Prof. R. Nair',  time:'10:00–10:50', sem:'Sem-4', present:42, total:47, closed:true},
-    {subject:'Physics',     teacher:'Prof. M. Joshi', time:'11:00–11:50', sem:'Sem-2', present:35, total:40, closed:false},
-  ];
-  const el = document.getElementById('session-history');
-  el.innerHTML = sessions.map(s => `
-    <div class="meeting-card" style="margin-bottom:10px">
-      <div style="flex:1">
-        <div style="font-size:0.88rem;font-weight:600;color:var(--txt)">${s.subject}</div>
-        <div class="text-muted">${s.teacher} · ${s.time} · ${s.sem}</div>
-        <div style="margin-top:8px;display:flex;align-items:center;gap:8px">
-          <div class="progress-track" style="flex:1"><div class="progress-fill pf-green" style="width:${Math.round(s.present/s.total*100)}%"></div></div>
-          <span style="font-size:0.75rem;font-weight:700;color:var(--green)">${s.present}/${s.total}</span>
-        </div>
-      </div>
-      <span class="badge ${s.closed ? 'badge-red' : 'badge-green'}" style="align-self:flex-start">${s.closed ? 'Closed' : 'Live'}</span>
-    </div>
-  `).join('');
-}
-
-// ═══════════════════════════════════════
-// RENDER: ASSIGNMENTS
-// ═══════════════════════════════════════
-function renderAssignments() {
-  const tbody = document.getElementById('assignments-tbody');
-  tbody.innerHTML = ASSIGNMENTS.map(a => {
-    const due = new Date(a.due);
-    const today = new Date();
-    const diff = Math.ceil((due - today) / 86400000);
-    const dueText = diff < 0 ? 'Overdue' : diff === 0 ? 'Today' : `${diff} days`;
-    const dueColor = diff < 0 ? 'var(--red)' : diff <= 3 ? 'var(--amber)' : 'var(--txt2)';
-    return `<tr>
-      <td class="td-strong">${a.title}</td>
-      <td><span class="badge badge-blue">${a.subject}</span></td>
-      <td><span style="color:${dueColor};font-weight:600">${dueText}</span></td>
-      <td>${a.sem}</td>
-      <td>
-        <div style="display:flex;align-items:center;gap:8px">
-          <div class="progress-track" style="width:80px"><div class="progress-fill pf-green" style="width:${a.submissions * 2}%"></div></div>
-          <span style="font-size:0.78rem;font-weight:600">${a.submissions}</span>
-        </div>
-      </td>
-      <td><span class="badge ${a.status === 'active' ? 'badge-green' : 'badge-red'}">${a.status}</span></td>
-    </tr>`;
-  }).join('');
-}
-
-function createAssignment() {
-  const title = document.getElementById('asgn-title').value.trim();
-  if (!title) { toast('Please enter an assignment title', 'error'); return; }
-  ASSIGNMENTS.unshift({
-    id: ASSIGNMENTS.length + 1,
-    title,
-    subject: document.getElementById('asgn-subject').value || 'General',
-    due: document.getElementById('asgn-due').value,
-    sem: document.getElementById('asgn-sem').value,
-    submissions: 0,
-    status: 'active'
-  });
-  renderAssignments();
-  closeModal('assignment-modal');
-  toast(`Assignment "${title}" created successfully`, 'success');
-  document.getElementById('asgn-title').value = '';
-  document.getElementById('asgn-subject').value = '';
-}
-
-// ═══════════════════════════════════════
-// RENDER: MEETINGS
-// ═══════════════════════════════════════
-function renderMeetings() {
-  const el = document.getElementById('meetings-list');
-  el.innerHTML = MEETINGS.map(m => `
-    <div class="meeting-card">
-      <div class="meeting-date-box">
-        <div class="mdb-day">${m.date}</div>
-        <div class="mdb-mon">${m.mon}</div>
-      </div>
-      <div class="meeting-info">
-        <div class="meeting-title">${m.title}</div>
-        <div class="meeting-meta"><i class="fa-regular fa-clock"></i> ${m.time} · Hosted by ${m.host}</div>
-        <div class="meeting-aud"><i class="fa-solid fa-users"></i> ${m.aud}</div>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-self:center;flex-shrink:0">
-        <button class="btn btn-ghost btn-sm" onclick="toast('Meeting link copied!','success')"><i class="fa-solid fa-link"></i></button>
-        <button class="btn btn-danger btn-sm" onclick="cancelMeeting(this,'${m.title}')"><i class="fa-solid fa-times"></i></button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function createMeeting() {
-  const title = document.getElementById('meet-title').value.trim();
-  if (!title) { toast('Please enter a meeting title', 'error'); return; }
-  const dt = new Date(document.getElementById('meet-datetime').value);
-  const day = dt.getDate().toString().padStart(2,'0');
-  const mon = dt.toLocaleString('en',{month:'short'}).toUpperCase();
-  const time = dt.toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit'});
-  MEETINGS.unshift({ id: MEETINGS.length + 1, title, date: day, mon, time, aud: document.getElementById('meet-aud').value, host: 'Admin' });
-  renderMeetings();
-  closeModal('meeting-modal');
-  toast(`Meeting "${title}" scheduled`, 'success');
-  document.getElementById('meet-title').value = '';
-}
-
-function cancelMeeting(btn, title) {
-  btn.closest('.meeting-card').style.opacity = '0';
-  btn.closest('.meeting-card').style.transition = '0.3s';
-  setTimeout(() => btn.closest('.meeting-card').remove(), 300);
-  toast(`Meeting "${title}" cancelled`, 'error');
-}
-
-// ═══════════════════════════════════════
-// RENDER: EMAIL LOG
-// ═══════════════════════════════════════
-function renderEmailLog() {
-  const el = document.getElementById('email-log');
-  el.innerHTML = EMAIL_LOG.map(e => `
-    <div class="email-stat">
-      <div class="email-icon si-amber"><i class="fa-solid fa-envelope-open"></i></div>
-      <div>
-        <div style="font-size:0.85rem;font-weight:600;color:var(--txt)">${e.student}</div>
-        <div class="text-muted">${e.subject}</div>
-        <div class="text-muted" style="font-size:0.7rem">${e.time}</div>
-      </div>
-      <span class="badge badge-green" style="margin-left:auto;align-self:flex-start">✓ Sent</span>
-    </div>
-  `).join('');
-}
-
-// ═══════════════════════════════════════
-// RENDER: REPORTS
-// ═══════════════════════════════════════
-function renderSemesterPerf() {
-  const el = document.getElementById('semester-perf');
-  const sorted = [...SEM_DATA].sort((a,b) => b.pct - a.pct);
-  el.innerHTML = sorted.map((s, i) => {
-    const medals = ['🥇','🥈','🥉'];
-    const cls = s.pct >= 85 ? 'pf-green' : s.pct >= 75 ? 'pf-amber' : 'pf-red';
-    return `<div class="progress-row">
-      <div class="progress-label">${medals[i] || ''} ${s.sem}</div>
-      <div class="progress-track">
-        <div class="progress-fill ${cls}" style="width:0%" data-pct="${s.pct}%"></div>
-      </div>
-      <div class="progress-pct">${s.pct}%</div>
-    </div>`;
-  }).join('');
-  setTimeout(() => {
-    el.querySelectorAll('.progress-fill').forEach(b => b.style.width = b.dataset.pct);
-  }, 200);
-}
-
-function renderMonthlySummary() {
-  const el = document.getElementById('monthly-summary');
-  const months = [
-    {month:'January',  avg:78.8, sessions:320, alerts:31},
-    {month:'February', avg:80.2, sessions:298, alerts:26},
-    {month:'March',    avg:83.4, sessions:315, alerts:23},
-    {month:'April',    avg:81.7, sessions:142, alerts:19},
-  ];
-  el.innerHTML = months.map(m => `
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
-      <div style="font-size:0.85rem;font-weight:600;color:var(--txt)">${m.month}</div>
-      <div style="display:flex;gap:16px">
-        <span class="text-muted"><i class="fa-solid fa-chart-bar text-green" style="font-size:0.75rem"></i> ${m.avg}%</span>
-        <span class="text-muted"><i class="fa-solid fa-calendar text-blue" style="font-size:0.75rem"></i> ${m.sessions}</span>
-        <span class="text-muted"><i class="fa-solid fa-bell text-red" style="font-size:0.75rem"></i> ${m.alerts}</span>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ═══════════════════════════════════════
-// USER ACTIONS
-// ═══════════════════════════════════════
-function approveUser(btn, name) {
-  const item = btn.closest('.approval-item');
-  item.style.opacity = '0';
-  item.style.transition = '0.3s';
-  setTimeout(() => item.remove(), 300);
-  updatePendingCount(-1);
-  toast(`${name} has been approved ✓`, 'success');
-}
-
-function rejectUser(btn) {
-  const item = btn.closest('.approval-item');
-  const name = item.querySelector('.approval-name').textContent;
-  item.style.opacity = '0';
-  item.style.transition = '0.3s';
-  setTimeout(() => item.remove(), 300);
-  updatePendingCount(-1);
-  toast(`${name} has been rejected`, 'error');
-}
-
-function approveAll() {
-  const items = document.querySelectorAll('.approval-item');
-  items.forEach((item, i) => {
-    setTimeout(() => {
-      item.style.opacity = '0';
-      item.style.transition = '0.3s';
-      setTimeout(() => item.remove(), 300);
-    }, i * 100);
-  });
-  setTimeout(() => {
-    document.getElementById('sc3').textContent = '0';
-    document.getElementById('nav-pending-count').textContent = '0';
-  }, items.length * 100 + 300);
-  toast(`All ${items.length} users approved!`, 'success');
-}
-
-function updatePendingCount(delta) {
-  const el = document.getElementById('nav-pending-count');
-  const sc = document.getElementById('sc3');
-  const current = parseInt(el.textContent);
-  const newVal = Math.max(0, current + delta);
-  el.textContent = newVal;
-  if (sc) sc.textContent = newVal;
-}
-
-function addUser() {
-  const name = document.getElementById('new-name').value.trim();
-  const email = document.getElementById('new-email').value.trim();
-  const role = document.getElementById('new-role').value;
-  if (!name || !email) { toast('Please fill in all required fields', 'error'); return; }
-
-  const emailReg = /^[^\s@]+@(gmail\.com|svkmmumbai\.onmicrosoft\.com)$/i;
-  if (!emailReg.test(email)) { toast('Only @gmail.com or @svkmmumbai.onmicrosoft.com emails allowed', 'error'); return; }
-
-  USERS.push({
-    id: USERS.length + 1,
-    name, email, role,
-    sem: document.getElementById('new-sem')?.value || '—',
-    div: document.getElementById('new-div')?.value || '—',
-    status: 'approved',
-    joined: new Date().toLocaleDateString('en-US', {year:'numeric',month:'short',day:'numeric'})
-  });
-  renderUsersTable(USERS);
-  closeModal('add-user-modal');
-  toast(`${name} added successfully`, 'success');
-  document.getElementById('new-name').value = '';
-  document.getElementById('new-email').value = '';
-}
-
-function updateRoleFields() {
-  const role = document.getElementById('new-role').value;
-  const sf = document.getElementById('student-fields');
-  sf.style.display = role === 'Student' ? 'block' : 'none';
-}
-
-// ═══════════════════════════════════════
-// EMAIL REPORTS
-// ═══════════════════════════════════════
-function sendWeeklyReports() {
-  const btn = document.getElementById('send-reports-btn');
-  btn.innerHTML = '<i class="fa-solid fa-spinner spin"></i> Sending...';
-  btn.disabled = true;
-
-  setTimeout(() => {
-    btn.innerHTML = '<i class="fa-solid fa-check"></i> 23 Reports Sent!';
-    btn.style.background = 'linear-gradient(135deg, var(--green), #059669)';
-    toast('Weekly attendance reports sent to 23 students', 'success');
-
-    EMAIL_LOG.unshift(
-      {student:'Batch Alert', email:'23 students', subject:'Weekly Attendance Alert', time:'Just now', status:'sent'}
-    );
-    renderEmailLog();
-
-    setTimeout(() => {
-      btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> Send Weekly Reports Now';
-      btn.style.background = '';
-      btn.disabled = false;
-    }, 4000);
-  }, 2000);
-}
-
-// ═══════════════════════════════════════
-// EXPORT REPORTS
-// ═══════════════════════════════════════
-function exportReport(type) {
-  const labels = { pdf:'PDF attendance report', csv:'Student CSV', xls:'Grade Excel', email:'Summary email' };
-  toast(`Generating ${labels[type]}...`, 'info');
-  setTimeout(() => toast(`${labels[type]} ready for download ✓`, 'success'), 1500);
-}
-
-// ═══════════════════════════════════════
-// AI CHAT
-// ═══════════════════════════════════════
-async function aiSend(preset) {
-  const input = document.getElementById('ai-input');
-  const text = preset || input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  const msgs = document.getElementById('ai-messages');
-
-  // User message
-  const uMsg = document.createElement('div');
-  uMsg.className = 'msg-user';
-  uMsg.textContent = text;
-  msgs.appendChild(uMsg);
-
-  // Typing indicator
-  const typing = document.createElement('div');
-  typing.className = 'msg-ai';
-  typing.innerHTML = '<div class="typing-dots"><span></span><span></span><span></span></div>';
-  msgs.appendChild(typing);
-  msgs.scrollTop = msgs.scrollHeight;
-
-  // Simulate API delay
-  await new Promise(r => setTimeout(r, 1400));
-
-  const response = AI_RESPONSES[text] || `I've analysed the campus data for your query: **"${text}"**\n\nBased on current data from StudX:\n• 1,240 students enrolled across 6 semesters\n• Campus average attendance: 83.4%\n• 23 students currently below the 75% threshold\n• 48 active faculty members\n\nWould you like me to drill deeper into any specific area? I can pull detailed reports on attendance, assignments, or faculty workload.`;
-
-  typing.innerHTML = response.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
-  msgs.scrollTop = msgs.scrollHeight;
-}
-
-function clearChat() {
-  const msgs = document.getElementById('ai-messages');
-  msgs.innerHTML = '<div class="msg-ai">Chat cleared. How can I help you analyse campus data today?</div>';
-  toast('Chat cleared', 'info');
-}
-
-// ═══════════════════════════════════════
-// CONFIRM LOGOUT
-// ═══════════════════════════════════════
-function confirmLogout() {
-  openModal('logout-modal');
-}
-
-// ═══════════════════════════════════════
-// PROGRESS BAR ANIMATION ON TAB SWITCH
-// ═══════════════════════════════════════
-const observer = new MutationObserver(() => {
-  document.querySelectorAll('.progress-fill[data-pct]').forEach(b => {
-    if (b.style.width === '0%' || !b.style.width) {
-      setTimeout(() => b.style.width = b.dataset.pct, 100);
-    }
-  });
-});
-observer.observe(document.querySelector('.main'), { childList: true, subtree: true });
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+</script>
 </script>
 </body>
 </html>
