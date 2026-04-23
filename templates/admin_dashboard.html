@@ -1,10 +1,160 @@
 {% extends 'base2.html' %}
 {% block extra_head %}
 <link rel="stylesheet" href="/static/portal.css">
-<style>.prog-fill {
-    width: var(--p);
+<style>
+/* ===== ADMIN THEME ===== */
+:root{
+  --c1:#ef4444;
+  --c2:#b91c1c;
+  --c3:#fef2f2;
+  --c4:#fee2e2;
+  --ctext:#7f1d1d;
+  --sidebar:#020617;
+  --accent:#f87171;
 }
-:root{--c1:#b91c1c;--c2:#dc2626;--c3:#fee2e2;--c4:#fecaca;--ctext:#7f1d1d;--sidebar:#1c0a0a;--accent:#f87171}</style>
+
+/* ===== BASE ===== */
+body{
+  background: linear-gradient(135deg,#f8fafc,#eef2ff);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  background: linear-gradient(180deg,#020617,#0f172a);
+  box-shadow: 8px 0 30px rgba(0,0,0,0.3);
+}
+
+.brand-name{
+  font-weight:800;
+  letter-spacing:0.5px;
+}
+
+.nav-item{
+  border-radius:12px;
+  padding:10px 12px;
+  transition:0.25s;
+}
+.nav-item:hover{
+  background:rgba(255,255,255,0.08);
+  transform:translateX(5px);
+}
+.nav-item.active{
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  color:#fff;
+  box-shadow:0 10px 25px rgba(239,68,68,0.35);
+}
+
+/* ===== HEADER ===== */
+.page-header h1{
+  font-weight:800;
+  color:#111827;
+}
+.page-header p{
+  color:#6b7280;
+}
+
+/* ===== CARDS ===== */
+.card, .stat-chip{
+  border-radius:20px;
+  background:rgba(255,255,255,0.95);
+  box-shadow:0 15px 40px rgba(0,0,0,0.08);
+  backdrop-filter: blur(10px);
+  transition:0.3s;
+}
+.card:hover{
+  transform:translateY(-6px);
+}
+
+/* ===== STATS ===== */
+.si{
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.1);
+}
+
+/* ===== BUTTONS ===== */
+.btn{
+  border-radius:14px;
+  font-weight:600;
+  transition:0.25s;
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  border:none;
+  color:#fff;
+  box-shadow:0 10px 25px rgba(239,68,68,0.3);
+}
+.btn-primary:hover{
+  transform:translateY(-2px);
+}
+
+.btn-outline{
+  border:1px solid rgba(239,68,68,0.4);
+  color:var(--c1);
+}
+.btn-outline:hover{
+  background:var(--c3);
+}
+
+/* ===== TABLE ===== */
+.tbl{
+  width:100%;
+  border-collapse:collapse;
+}
+.tbl th{
+  background:var(--c3);
+  color:var(--ctext);
+  font-weight:700;
+}
+.tbl td, .tbl th{
+  padding:10px;
+  border-bottom:1px solid #eee;
+}
+.tbl tr:hover{
+  background:#f9fafb;
+}
+
+/* ===== BADGES ===== */
+.badge{
+  border-radius:999px;
+  padding:4px 10px;
+  font-size:0.7rem;
+  font-weight:700;
+}
+.badge-green{ background:#dcfce7; color:#166534; }
+.badge-amber{ background:#fef3c7; color:#92400e; }
+
+/* ===== PROGRESS ===== */
+.prog-fill{
+  width:var(--p);
+  height:8px;
+  border-radius:999px;
+  background:linear-gradient(90deg,var(--c1),var(--c2));
+  box-shadow:0 4px 12px rgba(239,68,68,0.4);
+}
+
+/* ===== USER CHIP ===== */
+.user-chip{
+  background:rgba(255,255,255,0.08);
+  border-radius:14px;
+  padding:10px;
+}
+.user-av{
+  background:linear-gradient(135deg,var(--c1),var(--c2));
+  color:#fff;
+  box-shadow:0 6px 16px rgba(239,68,68,0.35);
+}
+
+/* ===== ANIMATION ===== */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+.tab-pane{
+  animation:fadeIn 0.4s ease;
+}
+</style>
 {% endblock %}
 {% block content %}
 <div class="shell">
