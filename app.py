@@ -950,5 +950,27 @@ def api_email_logs():
     logs = conn.execute("SELECT student_id, email, subject, sent_at FROM email_log ORDER BY sent_at DESC LIMIT 20").fetchall()
     conn.close()
     return jsonify({'logs': [dict(l) for l in logs]})
+@app.route('/migrate')
+def migrate_db():
+    conn = get_db()
+    tables = ['student_users', 'staff_users', 'parent_users']
+    report = []
+    
+    for table in tables:
+        # Get existing columns for this table
+        cursor = conn.execute(f"PRAGMA table_info({table})")
+        columns = [column[1] for column in cursor.fetchall()]
+        
+        if 'otp' not in columns:
+            conn.execute(f'ALTER TABLE {table} ADD COLUMN otp TEXT')
+            report.append(f"Added 'otp' to {table}")
+        
+        if 'otp_expiry' not in columns:
+            conn.execute(f'ALTER TABLE {table} ADD COLUMN otp_expiry INTEGER')
+            report.append(f"Added 'otp_expiry' to {table}")
+            
+    conn.commit()
+    conn.close()
+    return f"Status: {', '.join(report) if report else 'All columns already present!'}"
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
