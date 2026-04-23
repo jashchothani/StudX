@@ -164,7 +164,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-> Open your browser and visit: **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
+> Open your browser and visit: **[https://studx-1cub.onrender.com/login](https://studx-1cub.onrender.com/login)**
 
 ---
 
