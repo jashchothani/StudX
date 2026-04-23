@@ -933,6 +933,22 @@ def reset_db():
         os.remove('studx.db')
     init_db()
     return "<h3>✅ DB reset. <a href='/login'>Login</a></h3>"
+@app.route('/api/admin/users_list')
+def api_users_list():
+    if session.get('role') != 'Admin': return jsonify({'users': []}), 403
+    conn = get_db()
+    # Combine all user types into one clean list for the JS table
+    students = [dict(r) | {'role': 'Student'} for r in conn.execute("SELECT id, name, email, semester, status FROM student_users").fetchall()]
+    staff = [dict(r) | {'role': r['role']} for r in conn.execute("SELECT id, name, email, role, status FROM staff_users").fetchall()]
+    parents = [dict(r) | {'role': 'Parent'} for r in conn.execute("SELECT id, name, email, status FROM parent_users").fetchall()]
+    conn.close()
+    return jsonify({'users': students + staff + parents})
 
+@app.route('/api/email_logs')
+def api_email_logs():
+    conn = get_db()
+    logs = conn.execute("SELECT student_id, email, subject, sent_at FROM email_log ORDER BY sent_at DESC LIMIT 20").fetchall()
+    conn.close()
+    return jsonify({'logs': [dict(l) for l in logs]})
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=True)
